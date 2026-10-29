@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import { ActivityIndicator, View } from 'react-native';
 
 import { useAuth } from '../hooks/useAuth';
+import { useAppTheme } from '../context/ThemeProvider';
 import AgendaCuidadosScreen from '../screens/AgendaCuidadosScreen';
 import AlertasScreen from '../screens/AlertasScreen';
 import AppointmentDetailsScreen from '../screens/AppointmentDetailsScreen';
@@ -44,13 +46,15 @@ function AuthStack() {
 }
 
 function AppStack() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <Stack.Navigator
       initialRouteName="Home"
       screenOptions={{
-        headerStyle: { backgroundColor: '#E6FFFA', shadowColor: 'transparent', elevation: 0 },
+        headerStyle: styles.header,
         headerTitleAlign: 'center',
-        headerTintColor: '#065F46',
+        headerTintColor: colors.headerTint,
         headerBackTitleVisible: false,
         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
       }}
@@ -80,14 +84,22 @@ function AppStack() {
 
 export default function AppNavigator() {
   const { isAuthenticated, loading } = useAuth();
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F6FEFA' }}>
-        <ActivityIndicator size="large" color="#2563EB" />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={styles.loadingIndicator.color} />
       </View>
     );
   }
 
   return isAuthenticated ? <AppStack /> : <AuthStack />;
 }
+
+const createStyles = (colors) => ({
+  header: { backgroundColor: colors.headerBackground, shadowColor: 'transparent', elevation: 0 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background },
+  loadingIndicator: { color: colors.primary },
+});

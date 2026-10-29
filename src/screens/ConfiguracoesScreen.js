@@ -1,13 +1,22 @@
-import { useContext, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { useContext, useMemo, useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
 import { UserContext } from '../context/UserContext';
+import { useAppTheme } from '../context/ThemeProvider';
 import { useAuth } from '../hooks/useAuth';
 import { showToast } from '../utils/toast';
 
+const themeOptions = [
+  { label: 'Sistema', value: 'system' },
+  { label: 'Claro', value: 'light' },
+  { label: 'Escuro', value: 'dark' },
+];
+
 export default function ConfiguracoesScreen({ navigation }) {
+  const { colors, mode, setMode } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { user, setUser } = useContext(UserContext);
   const { logout, loading } = useAuth();
   const [remindersEnabled, setRemindersEnabled] = useState(user?.lembretesAtivos !== false);
@@ -26,6 +35,14 @@ export default function ConfiguracoesScreen({ navigation }) {
     }
   };
 
+  const handleThemeChange = async (nextMode) => {
+    try {
+      await setMode(nextMode);
+    } catch {
+      showToast('Não foi possível salvar a aparência selecionada.', 'error');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -33,8 +50,27 @@ export default function ConfiguracoesScreen({ navigation }) {
         <ProfileCard title="Preferências" icon="⚙️">
           <View style={styles.settingRow}>
             <View style={styles.settingText}><Text style={styles.title}>Lembretes de cuidado</Text><Text style={styles.description}>Receber lembretes sobre a rotina do pet</Text></View>
-            <Switch value={remindersEnabled} onValueChange={toggleReminders} trackColor={{ false: '#CBD5E1', true: '#6EE7B7' }} thumbColor={remindersEnabled ? '#059669' : '#F8FAFC'} />
+            <Switch value={remindersEnabled} onValueChange={toggleReminders} trackColor={{ false: colors.border, true: colors.accent }} thumbColor={colors.surface} />
           </View>
+        </ProfileCard>
+        <ProfileCard title="Aparência" icon="🎨">
+          {themeOptions.map((option) => {
+            const selected = mode === option.value;
+            return (
+              <TouchableOpacity
+                key={option.value}
+                accessibilityRole="radio"
+                accessibilityState={{ selected }}
+                onPress={() => handleThemeChange(option.value)}
+                style={styles.themeOption}
+              >
+                <View style={[styles.radio, selected && styles.radioSelected]}>
+                  {selected ? <View style={styles.radioDot} /> : null}
+                </View>
+                <Text style={styles.title}>{option.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
         </ProfileCard>
         <AppButton title="Meu perfil" variant="outline" onPress={() => navigation.navigate('PerfilPet')} style={styles.button} />
         <AppButton title="Histórico de notificações" variant="outline" onPress={() => navigation.navigate('HistoricoNotificacoes')} style={styles.button} />
@@ -44,12 +80,16 @@ export default function ConfiguracoesScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F6FEFA' },
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.background },
   container: { padding: 16 },
   settingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   settingText: { flex: 1 },
-  title: { color: '#0F172A', fontWeight: '700' },
-  description: { color: '#64748B', marginTop: 4 },
+  title: { color: colors.text, fontWeight: '700' },
+  description: { color: colors.placeholder, marginTop: 4 },
   button: { marginTop: 12 },
+  themeOption: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: 12 },
+  radio: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: colors.placeholder, alignItems: 'center', justifyContent: 'center' },
+  radioSelected: { borderColor: colors.primary },
+  radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary },
 });

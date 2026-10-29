@@ -1,11 +1,15 @@
+import { useMemo } from 'react';
 import { FlatList, RefreshControl, SafeAreaView, StyleSheet, Text } from 'react-native';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
 import { EmptyState, ErrorState } from '../components/ui/ListState';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import { useAppointmentAlerts } from '../hooks/useAppointmentAlerts';
+import { useAppTheme } from '../context/ThemeProvider';
 
 export default function AlertasScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { alertItems, data, isError, loading, refreshAlerts, refetch } = useAppointmentAlerts();
 
   return (
@@ -28,8 +32,8 @@ export default function AlertasScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F6FEFA' },
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.background },
   container: { padding: 16 },
-  message: { color: '#475569' },
+  message: { color: colors.textMuted },
 });

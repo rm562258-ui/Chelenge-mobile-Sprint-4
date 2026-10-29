@@ -1,10 +1,14 @@
+import { useMemo } from 'react';
 import { Alert, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import AppButton from '../components/ui/AppButton';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useAppointments, useDeleteAppointment, useUpdateAppointment } from '../hooks/useAppointments';
 import { formatDisplayDate } from '../utils/date';
+import { useAppTheme } from '../context/ThemeProvider';
 
 export default function AppointmentDetailsScreen({ route, navigation }) {
+    const { colors } = useAppTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
     const { id } = route.params || {};
     const { data } = useAppointments();
     const appointment = Array.isArray(data) ? data.find((a) => a.id === id) : null;
@@ -37,12 +41,12 @@ export default function AppointmentDetailsScreen({ route, navigation }) {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#F6FEFA' }}>
+        <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle={styles.container}>
                 <ProfileCard title={appointment?.title || 'Consulta'} icon="📌">
-                    <Text style={{ color: '#475569' }}>{appointment?.type || '-'} • {appointment?.status || '-'}</Text>
-                    <Text style={{ color: '#475569', marginTop: 8 }}>Pet: {appointment?.petName || '-'}</Text>
-                    <Text style={{ marginTop: 8 }}>Data: {formatDisplayDate(appointment?.date || '') || '-'}</Text>
+                    <Text style={{ color: colors.textMuted }}>{appointment?.type || '-'} • {appointment?.status || '-'}</Text>
+                    <Text style={{ color: colors.textMuted, marginTop: 8 }}>Pet: {appointment?.petName || '-'}</Text>
+                    <Text style={{ color: colors.text, marginTop: 8 }}>Data: {formatDisplayDate(appointment?.date || '') || '-'}</Text>
                     {appointment ? (
                         <View style={styles.statusRow}>
                             <Text style={styles.statusLabel}>{appointment.status === 'Concluída' ? 'Concluída' : appointment.status === 'Atrasada' ? 'Atrasada' : 'Agendada'}</Text>
@@ -50,12 +54,12 @@ export default function AppointmentDetailsScreen({ route, navigation }) {
                                 value={appointment.status === 'Concluída'}
                                 onValueChange={handleStatusChange}
                                 disabled={updateMutation.isPending}
-                                trackColor={{ false: '#CBD5E1', true: '#22C55E' }}
-                                thumbColor={appointment.status === 'Concluída' ? '#15803D' : '#F8FAFC'}
+                                trackColor={{ false: colors.border, true: colors.primary }}
+                                thumbColor={appointment.status === 'Concluída' ? colors.success : colors.surface}
                             />
                         </View>
                     ) : null}
-                    <Text style={{ marginTop: 8 }}>{appointment?.notes || ''}</Text>
+                    <Text style={{ color: colors.text, marginTop: 8 }}>{appointment?.notes || ''}</Text>
                 </ProfileCard>
 
                 <View style={{ height: 12 }} />
@@ -67,8 +71,9 @@ export default function AppointmentDetailsScreen({ route, navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: colors.background },
     container: { padding: 16 },
     statusRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 },
-    statusLabel: { color: '#0F172A', fontSize: 14, fontWeight: '700' },
+    statusLabel: { color: colors.text, fontSize: 14, fontWeight: '700' },
 });

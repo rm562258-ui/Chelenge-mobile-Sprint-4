@@ -1,13 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FlatList, SafeAreaView, StyleSheet, Text } from 'react-native';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
 import { EmptyState } from '../components/ui/ListState';
+import { useAppTheme } from '../context/ThemeProvider';
 
 const STORAGE_KEY = '@clyvocare:notification-history';
 
 export default function HistoricoNotificacoesScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
@@ -42,9 +45,9 @@ export default function HistoricoNotificacoesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F6FEFA' },
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.background },
   container: { padding: 16, flexGrow: 1 },
-  message: { color: '#475569' },
-  date: { color: '#94A3B8', marginTop: 8, fontSize: 12 },
+  message: { color: colors.textMuted },
+  date: { color: colors.placeholder, marginTop: 8, fontSize: 12 },
 });

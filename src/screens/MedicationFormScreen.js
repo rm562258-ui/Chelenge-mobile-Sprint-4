@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
 import * as z from 'zod';
@@ -7,10 +7,13 @@ import AppButton from '../components/ui/AppButton';
 import AppInput from '../components/ui/AppInput';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useCreateMedication, useMedications, useUpdateMedication } from '../hooks/useMedications';
+import { useAppTheme } from '../context/ThemeProvider';
 
 const schema = z.object({ name: z.string().min(1), petId: z.string().min(1), frequency: z.string().optional(), dosage: z.string().optional(), startDate: z.string().optional(), endDate: z.string().optional(), notes: z.string().optional() });
 
 export default function MedicationFormScreen({ route, navigation }) {
+    const { colors } = useAppTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
     const { id } = route.params || {};
     const { data } = useMedications();
 
@@ -38,7 +41,7 @@ export default function MedicationFormScreen({ route, navigation }) {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#F6FEFA' }}>
+        <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
                 <ProfileCard title={id ? 'Editar Medicamento' : 'Novo Medicamento'} icon="💊">
                     <Controller control={control} name="name" render={({ field }) => <AppInput label="Nome" value={field.value} onChangeText={field.onChange} />} />
@@ -56,4 +59,4 @@ export default function MedicationFormScreen({ route, navigation }) {
     );
 }
 
-const styles = StyleSheet.create({ container: { padding: 16 } });
+const createStyles = (colors) => StyleSheet.create({ safeArea: { flex: 1, backgroundColor: colors.background }, container: { padding: 16 } });

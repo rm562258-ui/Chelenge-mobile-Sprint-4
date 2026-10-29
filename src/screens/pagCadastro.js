@@ -1,5 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Image,
@@ -15,8 +15,11 @@ import AppInput from '../components/ui/AppInput';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
 import { UserContext } from "../context/UserContext";
+import { useAppTheme } from '../context/ThemeProvider';
 
 export default function PagCadastro({ navigation }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { user, setUser, clearUser } = useContext(UserContext);
 
   const [petNome, setPetNome] = useState(user?.petNome || '');
@@ -101,7 +104,7 @@ export default function PagCadastro({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <HeaderSection title="Cadastro do Pet" subtitle="Registre os dados para acompanhar os cuidados" />
 
@@ -139,10 +142,10 @@ export default function PagCadastro({ navigation }) {
           <View style={{ height: 12 }} />
 
           <ProfileCard title="Pré-visualização" icon="🔎">
-            <Text style={{ fontWeight: '700', color: '#0F172A' }}>{petNome || '—'}</Text>
-            <Text style={{ color: '#475569' }}>{especie ? `${especie} • ${raca || '-'}` : 'Espécie não informada'}</Text>
-            <Text style={{ color: '#475569', marginTop: 6 }}>{cuidadoPrincipal ? `Cuidado: ${cuidadoPrincipal}` : 'Sem cuidado principal'}</Text>
-            <Text style={{ color: '#475569', marginTop: 6 }}>{tutorNome ? `Tutor: ${tutorNome} (${contatoTutor || 'sem contato'})` : 'Tutor não informado'}</Text>
+            <Text style={{ fontWeight: '700', color: colors.text }}>{petNome || '—'}</Text>
+            <Text style={{ color: colors.textMuted }}>{especie ? `${especie} • ${raca || '-'}` : 'Espécie não informada'}</Text>
+            <Text style={{ color: colors.textMuted, marginTop: 6 }}>{cuidadoPrincipal ? `Cuidado: ${cuidadoPrincipal}` : 'Sem cuidado principal'}</Text>
+            <Text style={{ color: colors.textMuted, marginTop: 6 }}>{tutorNome ? `Tutor: ${tutorNome} (${contatoTutor || 'sem contato'})` : 'Tutor não informado'}</Text>
           </ProfileCard>
 
           <View style={{ height: 8 }} />
@@ -157,17 +160,18 @@ export default function PagCadastro({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.background },
   container: { padding: 16 },
   rowInputs: { flexDirection: 'row', marginTop: 8, alignItems: 'flex-start' },
   photoCard: {
     marginTop: 12,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderRadius: 18,
     padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  photoLabel: { fontWeight: '700', color: '#0F172A' },
+  photoLabel: { fontWeight: '700', color: colors.text },
   photoPreview: { width: 88, height: 88, borderRadius: 44, marginTop: 8 },
 });

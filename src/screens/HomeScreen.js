@@ -1,31 +1,35 @@
+import { useMemo } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useAuth } from '../hooks/useAuth';
+import { useAppTheme } from '../context/ThemeProvider';
 
 export default function HomeScreen({ navigation }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { logout, loading } = useAuth();
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F6FEFA' }}>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <HeaderSection title="ClyvoCare Pet" subtitle="Ajuda tutores a manterem a continuidade do cuidado do seu pet" />
 
         <ProfileCard title="Próxima vacina" icon="💉">
-          <Text style={{ color: '#0F172A', fontWeight: '600' }}>Vacina antirrábica</Text>
-          <Text style={{ color: '#475569', marginTop: 6 }}>Data estimada: 2026-08-10</Text>
+          <Text style={{ color: colors.text, fontWeight: '600' }}>Vacina antirrábica</Text>
+          <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data estimada: 2026-08-10</Text>
         </ProfileCard>
 
         <ProfileCard title="Check-up recomendado" icon="🩺">
-          <Text style={{ color: '#0F172A', fontWeight: '600' }}>Consulta anual preventiva</Text>
-          <Text style={{ color: '#475569', marginTop: 6 }}>Recomendação: agendar nos próximos 30 dias</Text>
+          <Text style={{ color: colors.text, fontWeight: '600' }}>Consulta anual preventiva</Text>
+          <Text style={{ color: colors.textMuted, marginTop: 6 }}>Recomendação: agendar nos próximos 30 dias</Text>
         </ProfileCard>
 
         <ProfileCard title="Acompanhamento contínuo" icon="📈">
-          <Text style={{ color: '#0F172A', fontWeight: '600' }}>Medicação e monitoramento</Text>
-          <Text style={{ color: '#475569', marginTop: 6 }}>Mantenha o histórico clínico e lembretes ativos</Text>
+          <Text style={{ color: colors.text, fontWeight: '600' }}>Medicação e monitoramento</Text>
+          <Text style={{ color: colors.textMuted, marginTop: 6 }}>Mantenha o histórico clínico e lembretes ativos</Text>
         </ProfileCard>
 
         <View style={{ height: 8 }} />
@@ -43,6 +47,7 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.background },
   container: { padding: 16 },
 });

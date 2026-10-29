@@ -1,33 +1,10 @@
 import { Platform } from 'react-native';
 
-export const Colors = {
-  light: {
-    background: '#121212',
-    backgroundSecondary: '#1E1E1E',
-    backgroundTertiary: '#2A2A2A',
-    text: '#ffffff',
-    textSecondary: '#B3B3B3',
-    textDisabled: '#808080',
-    tint: '#18ff10',
-    icon: '#B3B3B3',
-    border: '#2A2A2A',
-    error: '#EF4444',
-    success: '#16a35c',
-  },
-  dark: {
-    background: '#121212',
-    backgroundSecondary: '#1E1E1E',
-    backgroundTertiary: '#2A2A2A',
-    text: '#F5F5F5',
-    textSecondary: '#B3B3B3',
-    textDisabled: '#808080',
-    tint: '#fff',
-    icon: '#B3B3B3',
-    border: '#2A2A2A',
-    error: '#EF4444',
-    success: '#22C55E',
-  },
-};
+export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
+
+export const radius = { sm: 8, md: 12, lg: 18, xl: 20, full: 9999 } as const;
+
+export const typography = { body: 14, subtitle: 16, title: 22, display: 30 } as const;
 
 export const Fonts = Platform.select({
   ios: {

@@ -8,8 +8,11 @@ import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import SearchBar from '../components/ui/SearchBar';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { usePets } from '../hooks/usePets';
+import { useAppTheme } from '../context/ThemeProvider';
 
 export default function PetsListScreen({ navigation }) {
+    const { colors } = useAppTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
     const { data, isLoading, isError, refetch } = usePets();
     const [query, setQuery] = useState('');
     const [sort] = useState('name');
@@ -23,7 +26,7 @@ export default function PetsListScreen({ navigation }) {
     }, [data, debouncedQuery, sort]);
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#F6FEFA' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
             <FlatList
                 ListHeaderComponent={() => (
                     <View style={styles.header}>
@@ -42,13 +45,11 @@ export default function PetsListScreen({ navigation }) {
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => navigation.navigate('PetDetails', { id: item.id })}>
                         <ProfileCard title={item.petNome || '—'} icon="🐾">
-                            <Text style={{ color: '#475569' }}>{item.especie || '-'} • {item.raca || '-'}</Text>
-                            <Text style={{
-                                color: item.pendingSync ? '#64748B' : '#15803D',
-                                fontSize: 12,
-                                fontWeight: '700',
-                                marginTop: 8,
-                            }}>
+                            <Text style={{ color: colors.textMuted }}>{item.especie || '-'} • {item.raca || '-'}</Text>
+                            <Text style={[
+                                styles.syncStatus,
+                                { color: item.pendingSync ? colors.placeholder : colors.success },
+                            ]}>
                                 {item.pendingSync ? 'Salvo offline' : 'Sincronizado'}
                             </Text>
                         </ProfileCard>
@@ -59,8 +60,9 @@ export default function PetsListScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
     header: { padding: 16 },
     controls: { gap: 8 },
     newButton: { alignSelf: 'flex-start' },
+    syncStatus: { fontSize: 12, fontWeight: '700', marginTop: 8 },
 });

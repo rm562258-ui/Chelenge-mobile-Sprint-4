@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { FlatList, RefreshControl, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
@@ -8,13 +9,16 @@ import SearchBar from '../components/ui/SearchBar';
 import { useAppointments } from '../hooks/useAppointments';
 import { useFilteredAppointments } from '../hooks/useFilteredAppointments';
 import { formatDisplayDate } from '../utils/date';
+import { useAppTheme } from '../context/ThemeProvider';
 
 export default function AgendaCuidadosScreen({ navigation }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { data, isLoading, isError, refetch } = useAppointments();
   const { items, query, setQuery, status, toggleStatus } = useFilteredAppointments(Array.isArray(data) ? data : []);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F6FEFA' }}>
+    <SafeAreaView style={styles.safeArea}>
       <FlatList
         data={items}
         refreshControl={<RefreshControl refreshing={isLoading && !!data} onRefresh={refetch} />}
@@ -37,9 +41,9 @@ export default function AgendaCuidadosScreen({ navigation }) {
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => navigation.navigate('AppointmentDetails', { id: item.id })}>
             <ProfileCard title={`${item.type || item.title || 'Consulta'} - ${item.petName || 'Pet'}`} icon={'📌'}>
-              <Text style={{ color: '#0F172A', fontWeight: '600' }}>{item.type || 'Consulta'} • {item.status || '-'}</Text>
-              <Text style={{ color: '#475569', marginTop: 6 }}>Pet: {item.petName || '-'}</Text>
-              <Text style={{ color: '#475569', marginTop: 6 }}>Data: {formatDisplayDate(item.date)}</Text>
+              <Text style={{ color: colors.text, fontWeight: '600' }}>{item.type || 'Consulta'} • {item.status || '-'}</Text>
+              <Text style={{ color: colors.textMuted, marginTop: 6 }}>Pet: {item.petName || '-'}</Text>
+              <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data: {formatDisplayDate(item.date)}</Text>
             </ProfileCard>
           </TouchableOpacity>
         )}
@@ -48,4 +52,8 @@ export default function AgendaCuidadosScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({ container: { padding: 16 }, controls: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 } });
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  container: { padding: 16 },
+  controls: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
+});

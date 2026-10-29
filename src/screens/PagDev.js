@@ -1,7 +1,8 @@
+import { useMemo } from 'react';
 import { Animated, FlatList, SafeAreaView, StyleSheet } from "react-native";
 import DevCard from '../components/ui/DevCard';
 import HeaderSection from '../components/ui/HeaderSection';
-import { Colors } from '../theme';
+import { useAppTheme } from '../context/ThemeProvider';
 
 const team = [
   { name: "Luan Peixoto Marins Rocha", rm: "562258", photo: require('../../assets/images/react-logo.png') },
@@ -12,10 +13,12 @@ const team = [
 ];
 
 export default function PagDev() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const anim = new Animated.Value(0);
   Animated.timing(anim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.light.background }}>
+    <SafeAreaView style={styles.safeArea}>
       <FlatList
         contentContainerStyle={styles.container}
         data={team}
@@ -31,6 +34,7 @@ export default function PagDev() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.background },
   container: { padding: 16 },
 });

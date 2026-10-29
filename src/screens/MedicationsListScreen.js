@@ -8,8 +8,11 @@ import SearchBar from '../components/ui/SearchBar';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import { EmptyState, ErrorState } from '../components/ui/ListState';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { useAppTheme } from '../context/ThemeProvider';
 
 export default function MedicationsListScreen({ navigation }) {
+    const { colors } = useAppTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
     const { data, isLoading, isError, refetch } = useMedications();
     const [query, setQuery] = useState('');
     const [activeOnly, setActiveOnly] = useState(false);
@@ -26,7 +29,7 @@ export default function MedicationsListScreen({ navigation }) {
     }, [data, debouncedQuery, activeOnly]);
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#F6FEFA' }}>
+        <SafeAreaView style={styles.safeArea}>
             <FlatList
                 ListHeaderComponent={() => (
                     <View style={styles.header}>
@@ -48,8 +51,8 @@ export default function MedicationsListScreen({ navigation }) {
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => navigation.navigate('MedicationDetails', { id: item.id })}>
                         <ProfileCard title={item.name || '—'} icon="💊">
-                            <Text style={{ color: '#475569' }}>Frequência: {item.frequency || '-'}</Text>
-                            <Text style={{ color: '#475569', marginTop: 6 }}>Dosagem: {item.dosage || '-'}</Text>
+                            <Text style={{ color: colors.textMuted }}>Frequência: {item.frequency || '-'}</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 6 }}>Dosagem: {item.dosage || '-'}</Text>
                         </ProfileCard>
                     </TouchableOpacity>
                 )}
@@ -58,4 +61,9 @@ export default function MedicationsListScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({ header: { padding: 16 }, controls: { gap: 8 }, actions: { flexDirection: 'row', gap: 8 } });
+const createStyles = (colors) => StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    header: { padding: 16 },
+    controls: { gap: 8 },
+    actions: { flexDirection: 'row', gap: 8 },
+});

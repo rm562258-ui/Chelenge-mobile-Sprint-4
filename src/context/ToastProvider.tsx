@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { Animated, Text } from 'react-native';
+import { Animated, StyleSheet, Text } from 'react-native';
+import { useAppTheme } from './ThemeProvider';
 import { subscribeToast } from '../utils/toast';
 
 type ToastType = 'success' | 'error' | 'info';
@@ -11,6 +12,8 @@ type ToastContextValue = {
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [message, setMessage] = useState<string | null>(null);
   const [type, setType] = useState<ToastType>('info');
   const [opacity] = useState(new Animated.Value(0));
@@ -50,10 +53,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  const colors = {
-    success: '#16A34A',
-    error: '#EF4444',
-    info: '#0F766E',
+  const toastColors = {
+    success: colors.success,
+    error: colors.danger,
+    info: colors.info,
   };
 
   return (
@@ -68,22 +71,26 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             right: 20,
             bottom: 90,
             opacity,
-            backgroundColor: colors[type],
+            backgroundColor: toastColors[type],
             borderRadius: 14,
             paddingVertical: 12,
             paddingHorizontal: 16,
-            shadowColor: '#000',
+            shadowColor: colors.text,
             shadowOpacity: 0.12,
             shadowRadius: 12,
             shadowOffset: { width: 0, height: 4 },
           }}
         >
-          <Text style={{ color: '#FFFFFF', fontWeight: '700', textAlign: 'center' }}>{message}</Text>
+          <Text style={styles.message}>{message}</Text>
         </Animated.View>
       ) : null}
     </ToastContext.Provider>
   );
 }
+
+const createStyles = (colors: import('../theme/colors').AppColors) => StyleSheet.create({
+  message: { color: colors.primaryText, fontWeight: '700', textAlign: 'center' },
+});
 
 export function useToast() {
   const context = useContext(ToastContext);

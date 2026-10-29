@@ -1,6 +1,10 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useAppTheme } from '../../context/ThemeProvider';
 
 export default function ProfileCard({ title, children, style, icon }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={[styles.card, style]}>
       <View style={styles.rowHeader}>
@@ -12,13 +16,13 @@ export default function ProfileCard({ title, children, style, icon }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   card: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderRadius: 20,
     padding: 14,
-    shadowColor: '#000',
+    shadowColor: colors.text,
     shadowOpacity: 0.06,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -27,6 +31,6 @@ const styles = StyleSheet.create({
   },
   rowHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   icon: { marginRight: 8, fontSize: 18 },
-  title: { fontWeight: '700', color: '#0F172A' },
+  title: { fontWeight: '700', color: colors.text },
   content: {},
 });

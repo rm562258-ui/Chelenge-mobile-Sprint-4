@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from '@react-navigation/native';
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { z } from 'zod';
@@ -7,6 +8,7 @@ import { z } from 'zod';
 import AppButton from '../components/ui/AppButton';
 import AppInput from '../components/ui/AppInput';
 import { useAuth } from '../hooks/useAuth';
+import { useAppTheme } from '../context/ThemeProvider';
 
 const registerSchema = z.object({
     name: z.string().trim().min(2, 'Informe seu nome completo.'),
@@ -19,6 +21,8 @@ const registerSchema = z.object({
 });
 
 export default function RegisterScreen() {
+    const { colors } = useAppTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
     const navigation = useNavigation();
     const { signUp, loading } = useAuth();
 
@@ -128,12 +132,12 @@ export default function RegisterScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: '#F6FEFA' },
+const createStyles = (colors) => StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: colors.background },
     container: { flexGrow: 1, justifyContent: 'center', padding: 24 },
-    title: { fontSize: 30, fontWeight: '800', color: '#0F172A', textAlign: 'center', marginBottom: 8 },
-    subtitle: { fontSize: 16, color: '#475569', textAlign: 'center', marginBottom: 18 },
-    linkText: { color: '#2563EB', fontWeight: '700', marginTop: 12, textAlign: 'right' },
-    bottomText: { color: '#475569', marginRight: 6 },
+    title: { fontSize: 30, fontWeight: '800', color: colors.text, textAlign: 'center', marginBottom: 8 },
+    subtitle: { fontSize: 16, color: colors.textMuted, textAlign: 'center', marginBottom: 18 },
+    linkText: { color: colors.info, fontWeight: '700', marginTop: 12, textAlign: 'right' },
+    bottomText: { color: colors.textMuted, marginRight: 6 },
     inlineRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 20 },
 });

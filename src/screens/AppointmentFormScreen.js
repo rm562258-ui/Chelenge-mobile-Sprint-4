@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
 import * as z from 'zod';
@@ -8,6 +8,7 @@ import AppInput from '../components/ui/AppInput';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useAppointments, useCreateAppointment, useUpdateAppointment } from '../hooks/useAppointments';
 import { formatDisplayDate, maskDateInput } from '../utils/date';
+import { useAppTheme } from '../context/ThemeProvider';
 
 const schema = z.object({
     petName: z.string().min(1, 'Informe o nome do pet'),
@@ -18,6 +19,8 @@ const schema = z.object({
 });
 
 export default function AppointmentFormScreen({ route, navigation }) {
+    const { colors } = useAppTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
     const { id } = route.params || {};
 
     const { data } = useAppointments();
@@ -48,7 +51,7 @@ export default function AppointmentFormScreen({ route, navigation }) {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#F6FEFA' }}>
+        <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
                 <ProfileCard title={id ? 'Editar Consulta' : 'Nova Consulta'} icon="📅">
                     <Controller control={control} name="petName" render={({ field }) => (
@@ -75,6 +78,7 @@ export default function AppointmentFormScreen({ route, navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: colors.background },
     container: { padding: 16 },
 });

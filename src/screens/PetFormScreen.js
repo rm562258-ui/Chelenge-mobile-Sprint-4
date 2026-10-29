@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
 import * as z from 'zod';
@@ -7,6 +7,7 @@ import AppButton from '../components/ui/AppButton';
 import AppInput from '../components/ui/AppInput';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useCreatePet, usePet, useUpdatePet } from '../hooks/usePets';
+import { useAppTheme } from '../context/ThemeProvider';
 
 const schema = z.object({
     petNome: z.string().min(1, 'Nome obrigatório'),
@@ -25,6 +26,8 @@ const onlyNumber = (value = '') => {
 };
 
 export default function PetFormScreen({ route, navigation }) {
+    const { colors } = useAppTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
     const { id } = route.params || {};
     const { data: pet } = usePet(id);
 
@@ -56,7 +59,7 @@ export default function PetFormScreen({ route, navigation }) {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#F6FEFA' }}>
+        <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
                 <ProfileCard title={id ? 'Editar Pet' : 'Novo Pet'} icon="📝">
                     <Controller control={control} name="petNome" render={({ field }) => (
@@ -87,4 +90,7 @@ export default function PetFormScreen({ route, navigation }) {
     );
 }
 
-const styles = StyleSheet.create({ container: { padding: 16 } });
+const createStyles = (colors) => StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    container: { padding: 16 },
+});

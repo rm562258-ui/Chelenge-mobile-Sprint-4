@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import {
     Alert,
     Image,
@@ -12,9 +12,12 @@ import AppButton from '../components/ui/AppButton';
 import ProfileCard from '../components/ui/ProfileCard';
 import { UserContext } from "../context/UserContext";
 import { useDeletePet, usePets } from '../hooks/usePets';
+import { useAppTheme } from '../context/ThemeProvider';
 
 
 export default function PagPerfil({ navigation }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { user, clearUser } = useContext(UserContext);
   const { data: pets = [], isLoading: isPetsLoading } = usePets();
   const deletePetMutation = useDeletePet();
@@ -65,7 +68,7 @@ export default function PagPerfil({ navigation }) {
   const mainPet = registeredPets[0];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F6FEFA' }}>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.headerBlock}>
           <View style={styles.headerColor} />
@@ -74,7 +77,7 @@ export default function PagPerfil({ navigation }) {
               <Image source={{ uri: user.foto }} style={styles.avatar} />
             ) : (
               <View style={styles.placeholder}>
-                <Text>Sem foto</Text>
+                <Text style={{ color: colors.textMuted }}>Sem foto</Text>
               </View>
             )}
           </View>
@@ -86,11 +89,11 @@ export default function PagPerfil({ navigation }) {
 
           {isPetsLoading && registeredPets.length === 0 ? (
             <ProfileCard title="Carregando pets" icon="🐾">
-              <Text>Buscando os pets cadastrados...</Text>
+              <Text style={{ color: colors.text }}>Buscando os pets cadastrados...</Text>
             </ProfileCard>
           ) : empty ? (
             <ProfileCard title="Sem cadastro" icon="ℹ️">
-              <Text>Não há perfil de pet salvo. Vá para Cadastro para registrar um pet.</Text>
+              <Text style={{ color: colors.text }}>Não há perfil de pet salvo. Vá para Cadastro para registrar um pet.</Text>
               <View style={{ height: 8 }} />
               <AppButton title="Cadastrar Pet" onPress={() => navigation.navigate('CadastroPet')} />
             </ProfileCard>
@@ -98,10 +101,10 @@ export default function PagPerfil({ navigation }) {
             <>
               {registeredPets.map((pet) => (
                 <ProfileCard key={pet.id} title="Dados do Pet" icon="🐾">
-                  <Text style={{ color: '#0F172A', fontWeight: '600' }}>{pet.petNome || pet.name || 'Pet sem nome'}</Text>
-                  <Text style={{ color: '#475569', marginTop: 4 }}>{pet.especie || pet.type || '-'} • {pet.raca || pet.breed || '-'}</Text>
-                  <Text style={{ color: '#475569', marginTop: 4 }}>Idade: {pet.idade || pet.age || '-'} • Peso: {(pet.peso || pet.weight) ? `${pet.peso || pet.weight} kg` : '-'}</Text>
-                  <Text style={{ color: pet.pendingSync ? '#64748B' : '#15803D', fontSize: 12, fontWeight: '700', marginTop: 8 }}>
+                  <Text style={{ color: colors.text, fontWeight: '600' }}>{pet.petNome || pet.name || 'Pet sem nome'}</Text>
+                  <Text style={{ color: colors.textMuted, marginTop: 4 }}>{pet.especie || pet.type || '-'} • {pet.raca || pet.breed || '-'}</Text>
+                  <Text style={{ color: colors.textMuted, marginTop: 4 }}>Idade: {pet.idade || pet.age || '-'} • Peso: {(pet.peso || pet.weight) ? `${pet.peso || pet.weight} kg` : '-'}</Text>
+                  <Text style={{ color: pet.pendingSync ? colors.placeholder : colors.success, fontSize: 12, fontWeight: '700', marginTop: 8 }}>
                     {pet.pendingSync ? 'Salvo offline' : 'Sincronizado'}
                   </Text>
                   <View style={{ height: 8 }} />
@@ -111,19 +114,19 @@ export default function PagPerfil({ navigation }) {
 
               {!registeredPets.length && user?.petNome ? (
                 <ProfileCard title="Dados do Pet" icon="🐾">
-                  <Text style={{ color: '#0F172A', fontWeight: '600' }}>{user.petNome}</Text>
-                  <Text style={{ color: '#475569', marginTop: 4 }}>{user.especie} • {user.raca}</Text>
-                  <Text style={{ color: '#475569', marginTop: 4 }}>Idade: {user.idade || '-'} • Peso: {user.peso ? `${user.peso} kg` : '-'}</Text>
+                  <Text style={{ color: colors.text, fontWeight: '600' }}>{user.petNome}</Text>
+                  <Text style={{ color: colors.textMuted, marginTop: 4 }}>{user.especie} • {user.raca}</Text>
+                  <Text style={{ color: colors.textMuted, marginTop: 4 }}>Idade: {user.idade || '-'} • Peso: {user.peso ? `${user.peso} kg` : '-'}</Text>
                 </ProfileCard>
               ) : null}
 
               <ProfileCard title="Clínica de Referência" icon="🏥">
-                <Text style={{ color: '#0F172A', fontWeight: '600' }}>{user.clinica || '-'}</Text>
+                <Text style={{ color: colors.text, fontWeight: '600' }}>{user.clinica || '-'}</Text>
               </ProfileCard>
 
               <ProfileCard title="Cuidado Principal" icon="⚕️">
-                <Text style={{ color: '#0F172A', fontWeight: '600' }}>{user.cuidadoPrincipal || '-'}</Text>
-                <Text style={{ color: '#475569', marginTop: 6 }}>{user.lembretesAtivos ? 'Lembretes ativos' : 'Lembretes desativados'}</Text>
+                <Text style={{ color: colors.text, fontWeight: '600' }}>{user.cuidadoPrincipal || '-'}</Text>
+                <Text style={{ color: colors.textMuted, marginTop: 6 }}>{user.lembretesAtivos ? 'Lembretes ativos' : 'Lembretes desativados'}</Text>
               </ProfileCard>
 
               <View style={{ height: 8 }} />
@@ -140,13 +143,14 @@ export default function PagPerfil({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.background },
   container: { padding: 0 },
   headerBlock: { height: 200, position: 'relative' },
-  headerColor: { backgroundColor: '#10B981', height: '100%' },
+  headerColor: { backgroundColor: colors.accent, height: '100%' },
   avatarWrap: { position: 'absolute', left: 0, right: 0, top: 120, alignItems: 'center' },
-  avatar: { width: 140, height: 140, borderRadius: 70, borderWidth: 6, borderColor: '#fff' },
-  placeholder: { width: 140, height: 140, borderRadius: 70, backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 140, height: 140, borderRadius: 70, borderWidth: 6, borderColor: colors.surface },
+  placeholder: { width: 140, height: 140, borderRadius: 70, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   mainContent: { padding: 16, marginTop: 36 },
-  name: { fontSize: 20, fontWeight: '800', color: '#0F172A', textAlign: 'center' },
+  name: { fontSize: 20, fontWeight: '800', color: colors.text, textAlign: 'center' },
 });

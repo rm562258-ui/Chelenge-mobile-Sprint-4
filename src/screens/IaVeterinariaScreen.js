@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
+import { useAppTheme } from '../context/ThemeProvider';
 
 const FAQ_ITEMS = [
   {
@@ -27,6 +28,8 @@ const FAQ_ITEMS = [
 ];
 
 export default function IaVeterinariaScreen() {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [openQuestion, setOpenQuestion] = useState(null);
 
   return (
@@ -54,12 +57,12 @@ export default function IaVeterinariaScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F6FEFA' },
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.background },
   container: { padding: 16, paddingBottom: 32 },
-  faqItem: { borderBottomWidth: 1, borderBottomColor: '#E2E8F0', paddingVertical: 4 },
+  faqItem: { borderBottomWidth: 1, borderBottomColor: colors.border, paddingVertical: 4 },
   questionButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 },
-  question: { flex: 1, color: '#0F172A', fontWeight: '700', paddingRight: 12 },
-  toggle: { color: '#2563EB', fontSize: 24, fontWeight: '400' },
-  answer: { color: '#475569', lineHeight: 21, paddingBottom: 14, paddingRight: 12 },
+  question: { flex: 1, color: colors.text, fontWeight: '700', paddingRight: 12 },
+  toggle: { color: colors.primary, fontSize: 24, fontWeight: '400' },
+  answer: { color: colors.textMuted, lineHeight: 21, paddingBottom: 14, paddingRight: 12 },
 });

@@ -1,6 +1,10 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { useAppTheme } from '../../context/ThemeProvider';
 
 export default function AppInput({ label, value, onChangeText, placeholder, leftIcon, rightElement, keyboardType, secureTextEntry, style, error }) {
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={[styles.wrapper, style]}>
       {label ? <Text style={styles.label}>{label}</Text> : null}
@@ -13,7 +17,7 @@ export default function AppInput({ label, value, onChangeText, placeholder, left
           keyboardType={keyboardType}
           secureTextEntry={secureTextEntry}
           style={styles.input}
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor={colors.placeholder}
         />
         {rightElement ? <View style={styles.right}>{rightElement}</View> : null}
       </View>
@@ -22,22 +26,22 @@ export default function AppInput({ label, value, onChangeText, placeholder, left
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   wrapper: { width: '100%', marginTop: 8 },
-  label: { fontSize: 12, color: '#0F172A', marginBottom: 6, fontWeight: '600' },
+  label: { fontSize: 12, color: colors.text, marginBottom: 6, fontWeight: '600' },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.inputBackground,
     paddingHorizontal: 12,
     borderRadius: 18,
     height: 52,
     borderWidth: 1,
-    borderColor: '#e6eef9',
+    borderColor: colors.border,
   },
   leftIcon: { marginRight: 8, fontSize: 18 },
-  input: { flex: 1, color: '#0F172A' },
+  input: { flex: 1, color: colors.text },
   right: { marginLeft: 8 },
-  inputError: { borderColor: '#EF4444' },
-  errorText: { color: '#EF4444', marginTop: 6, fontSize: 12 },
+  inputError: { borderColor: colors.danger },
+  errorText: { color: colors.danger, marginTop: 6, fontSize: 12 },
 });
