@@ -4,6 +4,7 @@ import { createCrudService } from '../api/crudService';
 import { API_ENDPOINTS } from '../api/endpoints';
 import { showToast } from '../utils/toast';
 import { isPast, parseAppDate } from '../utils/date';
+import type { AppointmentReminder } from '../constants/appointments';
 import {
     deleteOfflineAppointment,
     getOfflineAppointments,
@@ -17,11 +18,12 @@ export type AppointmentPayload = {
     date: string;
     type: string;
     status: 'Agendada' | 'Concluída' | 'Atrasada';
+    time: string;
+    reminder: AppointmentReminder;
     notes?: string;
     veterinarian?: string;
     clinic?: string;
     specialty?: string;
-    time?: string;
 };
 
 const crud = createCrudService<AppointmentPayload>(API_ENDPOINTS.appointments);

@@ -8,8 +8,16 @@ import AppInput from '../components/ui/AppInput';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useCreateVaccine, useUpdateVaccine, useVaccines } from '../hooks/useVaccines';
 import { useAppTheme } from '../context/ThemeProvider';
+import { parseAppDate } from '../utils/date';
 
-const schema = z.object({ name: z.string().min(1), petId: z.string().min(1), date: z.string().min(1), dose: z.string().optional(), boosterDate: z.string().optional(), notes: z.string().optional() });
+const schema = z.object({
+    name: z.string().min(1),
+    petId: z.string().min(1),
+    date: z.string().min(1),
+    dose: z.string().optional(),
+    boosterDate: z.string().optional().refine((value) => !value || !!parseAppDate(value), 'Informe uma data válida no formato DD/MM/AA ou AAAA-MM-DD'),
+    notes: z.string().optional(),
+});
 
 export default function VaccineFormScreen({ route, navigation }) {
     const { colors } = useAppTheme();
@@ -17,7 +25,7 @@ export default function VaccineFormScreen({ route, navigation }) {
     const { id } = route.params || {};
     const { data } = useVaccines();
 
-    const { control, handleSubmit, reset } = useForm({ resolver: zodResolver(schema), defaultValues: {} });
+    const { control, handleSubmit, reset, formState: { errors } } = useForm({ resolver: zodResolver(schema), defaultValues: {} });
 
     useEffect(() => {
         if (id && data) {
@@ -49,7 +57,7 @@ export default function VaccineFormScreen({ route, navigation }) {
                     <Controller control={control} name="petId" render={({ field }) => <AppInput label="Pet ID" value={field.value} onChangeText={field.onChange} />} />
                     <Controller control={control} name="date" render={({ field }) => <AppInput label="Data" value={field.value} onChangeText={field.onChange} placeholder="YYYY-MM-DD" />} />
                     <Controller control={control} name="dose" render={({ field }) => <AppInput label="Dose" value={field.value} onChangeText={field.onChange} placeholder="1ª dose / reforço" />} />
-                    <Controller control={control} name="boosterDate" render={({ field }) => <AppInput label="Próximo reforço" value={field.value} onChangeText={field.onChange} placeholder="YYYY-MM-DD" />} />
+                    <Controller control={control} name="boosterDate" render={({ field }) => <AppInput label="Próximo reforço" value={field.value} onChangeText={field.onChange} placeholder="AAAA-MM-DD ou DD/MM/AA" error={errors.boosterDate?.message} />} />
                     <Controller control={control} name="notes" render={({ field }) => <AppInput label="Notas" value={field.value} onChangeText={field.onChange} />} />
                     <View style={{ height: 12 }} />
                     <AppButton title={id ? 'Salvar' : 'Registrar'} onPress={handleSubmit(onSubmit)} />

@@ -10,6 +10,7 @@ import { useAppointments } from '../hooks/useAppointments';
 import { useFilteredAppointments } from '../hooks/useFilteredAppointments';
 import { formatDisplayDate } from '../utils/date';
 import { useAppTheme } from '../context/ThemeProvider';
+import { APPOINTMENT_REMINDER_LABELS } from '../constants/appointments';
 
 export default function AgendaCuidadosScreen({ navigation }) {
   const { colors } = useAppTheme();
@@ -44,6 +45,8 @@ export default function AgendaCuidadosScreen({ navigation }) {
               <Text style={{ color: colors.text, fontWeight: '600' }}>{item.type || 'Consulta'} • {item.status || '-'}</Text>
               <Text style={{ color: colors.textMuted, marginTop: 6 }}>Pet: {item.petName || '-'}</Text>
               <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data: {formatDisplayDate(item.date)}</Text>
+              <Text style={{ color: colors.textMuted, marginTop: 6 }}>Horário: {item.time || 'Não informado'}</Text>
+              <Text style={{ color: colors.textMuted, marginTop: 6 }}>Lembrete: {APPOINTMENT_REMINDER_LABELS[item.reminder] || 'Sem lembrete'}</Text>
             </ProfileCard>
           </TouchableOpacity>
         )}

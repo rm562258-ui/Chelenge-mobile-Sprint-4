@@ -109,7 +109,7 @@ export default function PagCadastro({ navigation }) {
         <HeaderSection title="Cadastro do Pet" subtitle="Registre os dados para acompanhar os cuidados" />
 
         <ProfileCard>
-          <AppInput label="Nome do pet" value={petNome} onChangeText={setPetNome} placeholder="Ex: Bolinha" leftIcon="🐶" />
+          <AppInput label="Nome do pet" value={petNome} onChangeText={setPetNome} placeholder="Nome do pet" leftIcon="🐶" />
 
           <View style={styles.rowInputs}>
             <View style={{ flex: 1, marginRight: 8 }}>

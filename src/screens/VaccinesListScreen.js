@@ -9,6 +9,7 @@ import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import { EmptyState, ErrorState } from '../components/ui/ListState';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useAppTheme } from '../context/ThemeProvider';
+import { formatDisplayDate } from '../utils/date';
 
 export default function VaccinesListScreen({ navigation }) {
     const { colors } = useAppTheme();
@@ -50,9 +51,9 @@ export default function VaccinesListScreen({ navigation }) {
                     <TouchableOpacity onPress={() => navigation.navigate('VaccineDetails', { id: item.id })}>
                         <ProfileCard title={item.name || '—'} icon="💉">
                             <Text style={{ color: colors.textMuted }}>Pet: {item.petId || '-'}</Text>
-                            <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data: {item.date || '-'}</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data: {formatDisplayDate(item.date || '') || '-'}</Text>
                             <Text style={{ color: colors.textMuted, marginTop: 6 }}>Dose: {item.dose || '-'}</Text>
-                            <Text style={{ color: colors.textMuted, marginTop: 6 }}>Reforço: {item.boosterDate || '-'}</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 6 }}>Reforço: {item.boosterDate ? formatDisplayDate(item.boosterDate) : '-'}</Text>
                         </ProfileCard>
                     </TouchableOpacity>
                 )}

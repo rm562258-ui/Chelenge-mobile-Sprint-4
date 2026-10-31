@@ -11,7 +11,7 @@ const FAQ_ITEMS = [
   },
   {
     question: 'Como agendo uma consulta?',
-    answer: 'Abra a Agenda de Cuidados, escolha a opção de nova consulta e preencha data, horário e clínica.',
+    answer: 'Abra a Agenda de Cuidados, toque em Novo e informe o pet, a data, o horário, o tipo da consulta e as notas. Também é possível escolher um lembrete.',
   },
   {
     question: 'Onde vejo as vacinas do meu pet?',

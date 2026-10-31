@@ -1,35 +1,96 @@
 import { useMemo } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
+import { EmptyState, ErrorState } from '../components/ui/ListState';
+import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useAuth } from '../hooks/useAuth';
 import { useAppTheme } from '../context/ThemeProvider';
+import { useHomeSummary } from '../hooks/useHomeSummary';
+import { formatDisplayDate } from '../utils/date';
 
 export default function HomeScreen({ navigation }) {
   const { colors } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { logout, loading } = useAuth();
+  const summary = useHomeSummary();
+  const refreshQueries = [
+    { key: 'pets', query: summary.petsQuery },
+    { key: 'appointments', query: summary.appointmentsQuery },
+    { key: 'vaccines', query: summary.vaccinesQuery },
+    { key: 'medications', query: summary.medicationsQuery },
+  ];
+  const refreshing = refreshQueries.some(({ query }) => query.isFetching);
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <HeaderSection title="ClyvoCare Pet" subtitle="Ajuda tutores a manterem a continuidade do cuidado do seu pet" />
+      <ScrollView
+        contentContainerStyle={styles.container}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={summary.refetchAll} />}
+      >
+        <HeaderSection
+          title="ClyvoCare Pet"
+          subtitle={summary.tutorName ? `Olá, ${summary.tutorName}` : 'Acompanhe os cuidados do seu pet'}
+        />
 
-        <ProfileCard title="Próxima vacina" icon="💉">
-          <Text style={{ color: colors.text, fontWeight: '600' }}>Vacina antirrábica</Text>
-          <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data estimada: 2026-08-10</Text>
+        <ProfileCard title="Meus pets" icon="🐾">
+          {summary.petsQuery.isLoading ? <LoadingSkeleton rows={1} /> : summary.petsQuery.isError ? (
+            <ErrorState title="Não foi possível carregar os pets." onRetry={summary.petsQuery.refetch} />
+          ) : summary.petsCount === 0 ? (
+            <>
+              <EmptyState title="Nenhum pet cadastrado." description="Cadastre seu primeiro pet para acompanhar os cuidados." />
+              <AppButton title="Cadastrar Pet" onPress={() => navigation.navigate('CadastroPet')} />
+            </>
+          ) : (
+            <Text style={{ color: colors.text }}>{summary.petsCount} {summary.petsCount === 1 ? 'pet cadastrado' : 'pets cadastrados'}</Text>
+          )}
         </ProfileCard>
 
-        <ProfileCard title="Check-up recomendado" icon="🩺">
-          <Text style={{ color: colors.text, fontWeight: '600' }}>Consulta anual preventiva</Text>
-          <Text style={{ color: colors.textMuted, marginTop: 6 }}>Recomendação: agendar nos próximos 30 dias</Text>
+        <ProfileCard title="Próxima consulta" icon="📅">
+          {summary.appointmentsQuery.isLoading ? <LoadingSkeleton rows={1} /> : summary.appointmentsQuery.isError ? (
+            <ErrorState title="Não foi possível carregar as consultas." onRetry={summary.appointmentsQuery.refetch} />
+          ) : summary.nextAppointment ? (
+            <>
+              <Text style={{ color: colors.text, fontWeight: '600' }}>{summary.nextAppointment.type || 'Consulta'} • {summary.nextAppointment.petName || 'Pet'}</Text>
+              <Text style={{ color: colors.textMuted, marginTop: 6 }}>{formatDisplayDate(summary.nextAppointment.date)} às {summary.nextAppointment.time}</Text>
+            </>
+          ) : (
+            <>
+              <EmptyState title="Nenhuma consulta futura agendada." description="Agende uma consulta para acompanhar o próximo cuidado." />
+              <AppButton title="Agendar consulta" onPress={() => navigation.navigate('AppointmentForm')} />
+            </>
+          )}
         </ProfileCard>
 
-        <ProfileCard title="Acompanhamento contínuo" icon="📈">
-          <Text style={{ color: colors.text, fontWeight: '600' }}>Medicação e monitoramento</Text>
-          <Text style={{ color: colors.textMuted, marginTop: 6 }}>Mantenha o histórico clínico e lembretes ativos</Text>
+        <ProfileCard title="Próximo reforço de vacina" icon="💉">
+          {summary.vaccinesQuery.isLoading ? <LoadingSkeleton rows={1} /> : summary.vaccinesQuery.isError ? (
+            <ErrorState title="Não foi possível carregar as vacinas." onRetry={summary.vaccinesQuery.refetch} />
+          ) : summary.nextVaccine ? (
+            <>
+              <Text style={{ color: colors.text, fontWeight: '600' }}>{summary.nextVaccine.name || 'Vacina'}</Text>
+              <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data: {formatDisplayDate(summary.nextVaccine.boosterDate)}</Text>
+            </>
+          ) : (
+            <>
+              <EmptyState title="Nenhum reforço futuro registrado." description="Registre a data do próximo reforço na carteira vacinal." />
+              <AppButton title="Registrar vacina" onPress={() => navigation.navigate('VaccineForm')} />
+            </>
+          )}
+        </ProfileCard>
+
+        <ProfileCard title="Medicamentos em andamento" icon="💊">
+          {summary.medicationsQuery.isLoading ? <LoadingSkeleton rows={1} /> : summary.medicationsQuery.isError ? (
+            <ErrorState title="Não foi possível carregar os medicamentos." onRetry={summary.medicationsQuery.refetch} />
+          ) : summary.medicationsInProgress === 0 ? (
+            <>
+              <EmptyState title="Nenhum medicamento em andamento." description="Cadastre um tratamento para acompanhar seu pet." />
+              <AppButton title="Registrar medicamento" onPress={() => navigation.navigate('MedicationForm')} />
+            </>
+          ) : (
+            <Text style={{ color: colors.text }}>{summary.medicationsInProgress} {summary.medicationsInProgress === 1 ? 'medicamento em andamento' : 'medicamentos em andamento'}</Text>
+          )}
         </ProfileCard>
 
         <View style={{ height: 8 }} />

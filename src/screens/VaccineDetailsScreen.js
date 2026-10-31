@@ -4,6 +4,7 @@ import AppButton from '../components/ui/AppButton';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useDeleteVaccine, useVaccines } from '../hooks/useVaccines';
 import { useAppTheme } from '../context/ThemeProvider';
+import { formatDisplayDate } from '../utils/date';
 
 export default function VaccineDetailsScreen({ route, navigation }) {
     const { colors } = useAppTheme();
@@ -25,7 +26,8 @@ export default function VaccineDetailsScreen({ route, navigation }) {
             <ScrollView contentContainerStyle={styles.container}>
                 <ProfileCard title={vaccine?.name || 'Vacina'} icon="💉">
                     <Text style={{ color: colors.textMuted }}>Pet: {vaccine?.petId || '-'}</Text>
-                    <Text style={{ color: colors.text, marginTop: 8 }}>Data: {vaccine?.date || '-'}</Text>
+                    <Text style={{ color: colors.text, marginTop: 8 }}>Data: {formatDisplayDate(vaccine?.date || '') || '-'}</Text>
+                    <Text style={{ color: colors.text, marginTop: 8 }}>Próximo reforço: {vaccine?.boosterDate ? formatDisplayDate(vaccine.boosterDate) : 'Não informado'}</Text>
                     <Text style={{ color: colors.text, marginTop: 8 }}>{vaccine?.notes || ''}</Text>
                 </ProfileCard>
                 <View style={{ height: 12 }} />

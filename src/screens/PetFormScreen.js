@@ -75,11 +75,11 @@ export default function PetFormScreen({ route, navigation }) {
                     )} />
 
                     <Controller control={control} name="idade" render={({ field }) => (
-                        <AppInput label="Idade" value={String(field.value ?? '')} onChangeText={(value) => field.onChange(onlyDigits(value))} placeholder="Ex.: 4" keyboardType="numeric" />
+                        <AppInput label="Idade" value={String(field.value ?? '')} onChangeText={(value) => field.onChange(onlyDigits(value))} placeholder="Idade em anos" keyboardType="numeric" />
                     )} />
 
                     <Controller control={control} name="peso" render={({ field }) => (
-                        <AppInput label="Peso (kg)" value={String(field.value ?? '')} onChangeText={(value) => field.onChange(onlyNumber(value))} placeholder="Ex.: 8,5" keyboardType="decimal-pad" />
+                        <AppInput label="Peso (kg)" value={String(field.value ?? '')} onChangeText={(value) => field.onChange(onlyNumber(value))} placeholder="Peso em kg" keyboardType="decimal-pad" />
                     )} />
 
                     <View style={{ height: 12 }} />

@@ -33,6 +33,11 @@ export function maskDateInput(value: string): string {
     return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }
 
+export function maskTimeInput(value: string): string {
+    const digits = value.replace(/\D/g, '').slice(0, 4);
+    return digits.length <= 2 ? digits : `${digits.slice(0, 2)}:${digits.slice(2)}`;
+}
+
 export function combineDateAndTime(dateValue: Date | string, time: string): Date | null {
     const date = dateValue instanceof Date ? new Date(dateValue) : parseAppDate(dateValue);
     const match = time.match(/^(\d{2}):(\d{2})$/);

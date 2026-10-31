@@ -5,6 +5,7 @@ import ProfileCard from '../components/ui/ProfileCard';
 import { useAppointments, useDeleteAppointment, useUpdateAppointment } from '../hooks/useAppointments';
 import { formatDisplayDate } from '../utils/date';
 import { useAppTheme } from '../context/ThemeProvider';
+import { APPOINTMENT_REMINDER_LABELS } from '../constants/appointments';
 
 export default function AppointmentDetailsScreen({ route, navigation }) {
     const { colors } = useAppTheme();
@@ -47,6 +48,8 @@ export default function AppointmentDetailsScreen({ route, navigation }) {
                     <Text style={{ color: colors.textMuted }}>{appointment?.type || '-'} • {appointment?.status || '-'}</Text>
                     <Text style={{ color: colors.textMuted, marginTop: 8 }}>Pet: {appointment?.petName || '-'}</Text>
                     <Text style={{ color: colors.text, marginTop: 8 }}>Data: {formatDisplayDate(appointment?.date || '') || '-'}</Text>
+                    <Text style={{ color: colors.text, marginTop: 8 }}>Horário: {appointment?.time || 'Não informado'}</Text>
+                    <Text style={{ color: colors.text, marginTop: 8 }}>Lembrete: {APPOINTMENT_REMINDER_LABELS[appointment?.reminder] || 'Sem lembrete'}</Text>
                     {appointment ? (
                         <View style={styles.statusRow}>
                             <Text style={styles.statusLabel}>{appointment.status === 'Concluída' ? 'Concluída' : appointment.status === 'Atrasada' ? 'Atrasada' : 'Agendada'}</Text>
