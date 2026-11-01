@@ -23,7 +23,8 @@ export default function VaccinesListScreen({ navigation }) {
         const list = Array.isArray(data) ? data : [];
         return list.filter((v) => {
             const matchesQuery = (v.name || '').toLowerCase().includes(debouncedQuery.toLowerCase());
-            return matchesQuery && (!withBooster || !!v.boosterDate);
+            const nextDate = v.nextDoseDate !== undefined ? v.nextDoseDate : v.boosterDate;
+            return matchesQuery && (!withBooster || !!nextDate);
         });
     }, [data, debouncedQuery, withBooster]);
 
@@ -53,7 +54,7 @@ export default function VaccinesListScreen({ navigation }) {
                             <Text style={{ color: colors.textMuted }}>Pet: {item.petId || '-'}</Text>
                             <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data: {formatDisplayDate(item.date || '') || '-'}</Text>
                             <Text style={{ color: colors.textMuted, marginTop: 6 }}>Dose: {item.dose || '-'}</Text>
-                            <Text style={{ color: colors.textMuted, marginTop: 6 }}>Reforço: {item.boosterDate ? formatDisplayDate(item.boosterDate) : '-'}</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 6 }}>Reforço: {(item.nextDoseDate !== undefined ? item.nextDoseDate : item.boosterDate) ? formatDisplayDate(item.nextDoseDate !== undefined ? item.nextDoseDate : item.boosterDate) : '-'}</Text>
                         </ProfileCard>
                     </TouchableOpacity>
                 )}

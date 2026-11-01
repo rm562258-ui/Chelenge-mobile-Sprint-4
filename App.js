@@ -1,6 +1,7 @@
 import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { AppRegistry } from 'react-native';
 import 'react-native-gesture-handler';
+import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 
 import { AuthProvider } from './src/context/AuthContext';
@@ -10,9 +11,19 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { QueryProvider } from './src/providers/QueryProvider';
 import { ToastProvider } from './src/context/ToastProvider';
 import OfflineBanner from './src/components/ui/OfflineBanner';
+import { configureNotifications } from './src/services/localNotificationService';
+import { flushPendingNotificationNavigation, navigationRef } from './src/navigation/navigationRef';
+import { showToast } from './src/utils/toast';
 
 function AppContent() {
   const { colors, isDark } = useAppTheme();
+  useEffect(() => {
+    void configureNotifications().catch((error) => {
+      console.error('[NOTIFICATIONS] Não foi possível inicializar as notificações locais.', error);
+      showToast('Não foi possível inicializar as notificações locais.', 'error');
+    });
+  }, []);
+
   const navigationTheme = {
     ...(isDark ? DarkTheme : DefaultTheme),
     colors: {
@@ -33,7 +44,11 @@ function AppContent() {
         <UserProvider>
           <ToastProvider>
             <QueryProvider>
-              <NavigationContainer theme={navigationTheme}>
+              <NavigationContainer
+                ref={navigationRef}
+                theme={navigationTheme}
+                onReady={flushPendingNotificationNavigation}
+              >
                 <AppNavigator />
               </NavigationContainer>
               <OfflineBanner />

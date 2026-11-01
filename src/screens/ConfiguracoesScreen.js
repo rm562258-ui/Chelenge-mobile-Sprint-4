@@ -1,11 +1,11 @@
-import { useContext, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
-import { UserContext } from '../context/UserContext';
 import { useAppTheme } from '../context/ThemeProvider';
 import { useAuth } from '../hooks/useAuth';
+import { useReminderSettings } from '../hooks/useReminderSettings';
 import { showToast } from '../utils/toast';
 
 const themeOptions = [
@@ -17,14 +17,16 @@ const themeOptions = [
 export default function ConfiguracoesScreen({ navigation }) {
   const { colors, mode, setMode } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { user, setUser } = useContext(UserContext);
   const { logout, loading } = useAuth();
-  const [remindersEnabled, setRemindersEnabled] = useState(user?.lembretesAtivos !== false);
+  const { enabled: remindersEnabled, setRemindersEnabled } = useReminderSettings();
 
-  const toggleReminders = async (value) => {
-    setRemindersEnabled(value);
-    await setUser({ ...user, lembretesAtivos: value });
-    showToast(value ? 'Lembretes ativados.' : 'Lembretes desativados.', 'success');
+  const toggleReminders = async (nextEnabled) => {
+    try {
+      const updated = await setRemindersEnabled(nextEnabled);
+      if (updated) showToast(nextEnabled ? 'Lembretes ativados.' : 'Lembretes desativados.', 'success');
+    } catch {
+      showToast('Não foi possível atualizar os lembretes.', 'error');
+    }
   };
 
   const handleLogout = async () => {

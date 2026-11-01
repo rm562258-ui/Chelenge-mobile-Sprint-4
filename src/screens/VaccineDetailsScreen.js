@@ -11,7 +11,7 @@ export default function VaccineDetailsScreen({ route, navigation }) {
     const styles = useMemo(() => createStyles(colors), [colors]);
     const { id } = route.params || {};
     const { data } = useVaccines();
-    const vaccine = Array.isArray(data) ? data.find((v) => v.id === id) : null;
+    const vaccine = Array.isArray(data) ? data.find((v) => String(v.id) === String(id)) : null;
     const deleteMutation = useDeleteVaccine();
 
     const handleDelete = () => {
@@ -27,7 +27,7 @@ export default function VaccineDetailsScreen({ route, navigation }) {
                 <ProfileCard title={vaccine?.name || 'Vacina'} icon="💉">
                     <Text style={{ color: colors.textMuted }}>Pet: {vaccine?.petId || '-'}</Text>
                     <Text style={{ color: colors.text, marginTop: 8 }}>Data: {formatDisplayDate(vaccine?.date || '') || '-'}</Text>
-                    <Text style={{ color: colors.text, marginTop: 8 }}>Próximo reforço: {vaccine?.boosterDate ? formatDisplayDate(vaccine.boosterDate) : 'Não informado'}</Text>
+                    <Text style={{ color: colors.text, marginTop: 8 }}>Próximo reforço: {(vaccine?.nextDoseDate !== undefined ? vaccine.nextDoseDate : vaccine?.boosterDate) ? formatDisplayDate(vaccine.nextDoseDate !== undefined ? vaccine.nextDoseDate : vaccine.boosterDate) : 'Não informado'}</Text>
                     <Text style={{ color: colors.text, marginTop: 8 }}>{vaccine?.notes || ''}</Text>
                 </ProfileCard>
                 <View style={{ height: 12 }} />

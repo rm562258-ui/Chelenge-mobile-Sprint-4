@@ -12,7 +12,7 @@ export default function AppointmentDetailsScreen({ route, navigation }) {
     const styles = useMemo(() => createStyles(colors), [colors]);
     const { id } = route.params || {};
     const { data } = useAppointments();
-    const appointment = Array.isArray(data) ? data.find((a) => a.id === id) : null;
+    const appointment = Array.isArray(data) ? data.find((a) => String(a.id) === String(id)) : null;
     const deleteMutation = useDeleteAppointment();
     const updateMutation = useUpdateAppointment();
 

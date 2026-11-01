@@ -6,6 +6,7 @@ export type VaccinePayload = {
     petId: string;
     date: string;
     dose?: string;
+    nextDoseDate?: string;
     boosterDate?: string;
     veterinarian?: string;
     notes?: string;

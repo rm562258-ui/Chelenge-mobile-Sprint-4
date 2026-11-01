@@ -4,9 +4,11 @@ import { API_ENDPOINTS } from '../api/endpoints';
 export type NotificationPayload = {
     title: string;
     message: string;
-    type?: string;
-    read?: boolean;
-    createdAt?: string;
+    type: 'appointment' | 'vaccine';
+    refId: string;
+    scheduledFor: string;
+    createdAt: string;
+    read: boolean;
 };
 
 const notificationService = createCrudService<NotificationPayload>(API_ENDPOINTS.notifications);

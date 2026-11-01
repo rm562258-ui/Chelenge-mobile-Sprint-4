@@ -15,7 +15,7 @@ const schema = z.object({
     petId: z.string().min(1),
     date: z.string().min(1),
     dose: z.string().optional(),
-    boosterDate: z.string().optional().refine((value) => !value || !!parseAppDate(value), 'Informe uma data válida no formato DD/MM/AA ou AAAA-MM-DD'),
+    nextDoseDate: z.string().optional().refine((value) => !value || !!parseAppDate(value), 'Informe uma data válida no formato DD/MM/AA ou AAAA-MM-DD'),
     notes: z.string().optional(),
 });
 
@@ -30,7 +30,7 @@ export default function VaccineFormScreen({ route, navigation }) {
     useEffect(() => {
         if (id && data) {
             const v = data.find((x) => x.id === id);
-            if (v) reset(v);
+            if (v) reset({ ...v, nextDoseDate: v.nextDoseDate || v.boosterDate || '' });
         }
     }, [id, data, reset]);
 
@@ -57,7 +57,7 @@ export default function VaccineFormScreen({ route, navigation }) {
                     <Controller control={control} name="petId" render={({ field }) => <AppInput label="Pet ID" value={field.value} onChangeText={field.onChange} />} />
                     <Controller control={control} name="date" render={({ field }) => <AppInput label="Data" value={field.value} onChangeText={field.onChange} placeholder="YYYY-MM-DD" />} />
                     <Controller control={control} name="dose" render={({ field }) => <AppInput label="Dose" value={field.value} onChangeText={field.onChange} placeholder="1ª dose / reforço" />} />
-                    <Controller control={control} name="boosterDate" render={({ field }) => <AppInput label="Próximo reforço" value={field.value} onChangeText={field.onChange} placeholder="AAAA-MM-DD ou DD/MM/AA" error={errors.boosterDate?.message} />} />
+                    <Controller control={control} name="nextDoseDate" render={({ field }) => <AppInput label="Data do próximo reforço" value={field.value} onChangeText={field.onChange} placeholder="AAAA-MM-DD ou DD/MM/AA" error={errors.nextDoseDate?.message} />} />
                     <Controller control={control} name="notes" render={({ field }) => <AppInput label="Notas" value={field.value} onChangeText={field.onChange} />} />
                     <View style={{ height: 12 }} />
                     <AppButton title={id ? 'Salvar' : 'Registrar'} onPress={handleSubmit(onSubmit)} />

@@ -13,6 +13,7 @@ import { Alert } from 'react-native';
 
 import { setAuthToken } from '../api/client';
 import { auth, AUTH_SESSION_KEY, firebaseErrorMessage, firebaseHealthCheck } from '../services/firebase';
+import { cancelAllReminders } from '../services/reminderService';
 import { showToast } from '../utils/toast';
 
 type AuthContextValue = {
@@ -152,6 +153,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
 
         try {
+            try {
+                await cancelAllReminders();
+            } catch {
+                showToast('Não foi possível cancelar todos os lembretes locais.', 'error');
+            }
             await signOut(auth);
             setUser(null);
             await persistSession(null);

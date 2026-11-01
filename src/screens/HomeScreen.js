@@ -70,7 +70,7 @@ export default function HomeScreen({ navigation }) {
           ) : summary.nextVaccine ? (
             <>
               <Text style={{ color: colors.text, fontWeight: '600' }}>{summary.nextVaccine.name || 'Vacina'}</Text>
-              <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data: {formatDisplayDate(summary.nextVaccine.boosterDate)}</Text>
+              <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data: {formatDisplayDate(summary.nextVaccine.nextDoseDate !== undefined ? summary.nextVaccine.nextDoseDate : summary.nextVaccine.boosterDate)}</Text>
             </>
           ) : (
             <>

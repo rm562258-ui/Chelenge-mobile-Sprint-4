@@ -18,6 +18,7 @@ type VaccineSummaryItem = {
     boosterDate?: string;
     id?: string | number;
     name?: string;
+    nextDoseDate?: string;
 };
 
 type MedicationSummaryItem = {
@@ -65,7 +66,10 @@ export function useHomeSummary() {
         .sort((first, second) => first.scheduledAt!.getTime() - second.scheduledAt!.getTime())[0] ?? null;
 
     const nextVaccine = vaccines
-        .map((vaccine) => ({ ...vaccine, date: parseAppDate(vaccine.boosterDate) }))
+        .map((vaccine) => ({
+            ...vaccine,
+            date: parseAppDate(vaccine.nextDoseDate !== undefined ? vaccine.nextDoseDate : vaccine.boosterDate),
+        }))
         .filter((vaccine) => vaccine.date && vaccine.date >= new Date(now.getFullYear(), now.getMonth(), now.getDate()))
         .sort((first, second) => first.date!.getTime() - second.date!.getTime())[0] ?? null;
 

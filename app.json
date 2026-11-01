@@ -32,7 +32,13 @@
       "reactCompiler": true
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#15803D"
+        }
+      ]
     ]
   }
 }

@@ -4,6 +4,7 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { useAuth } from '../hooks/useAuth';
 import { useAppTheme } from '../context/ThemeProvider';
+import { useNotificationListeners } from '../hooks/useNotificationListeners';
 import AgendaCuidadosScreen from '../screens/AgendaCuidadosScreen';
 import AlertasScreen from '../screens/AlertasScreen';
 import AppointmentDetailsScreen from '../screens/AppointmentDetailsScreen';
@@ -46,6 +47,7 @@ function AuthStack() {
 }
 
 function AppStack() {
+  useNotificationListeners();
   const { colors } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
