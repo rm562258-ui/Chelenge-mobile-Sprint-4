@@ -24,6 +24,7 @@ import PetDetailsScreen from '../screens/PetDetailsScreen';
 import PetFormScreen from '../screens/PetFormScreen';
 import PetsListScreen from '../screens/PetsListScreen';
 import RegisterScreen from '../screens/RegisterScreen';
+import SobreScreen from '../screens/SobreScreen';
 import VaccineDetailsScreen from '../screens/VaccineDetailsScreen';
 import VaccineFormScreen from '../screens/VaccineFormScreen';
 import VaccinesListScreen from '../screens/VaccinesListScreen';
@@ -80,6 +81,7 @@ function AppStack() {
       <Stack.Screen name="MedicationDetails" component={MedicationDetailsScreen} options={{ title: 'Detalhes do Medicamento' }} />
       <Stack.Screen name="Alertas" component={AlertasScreen} options={{ title: 'Alertas' }} />
       <Stack.Screen name="Equipe" component={PagDev} options={{ title: 'Integrantes' }} />
+      <Stack.Screen name="Sobre" component={SobreScreen} options={{ title: 'Sobre o App' }} />
     </Stack.Navigator>
   );
 }

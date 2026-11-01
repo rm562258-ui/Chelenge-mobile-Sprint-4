@@ -76,6 +76,7 @@ export default function ConfiguracoesScreen({ navigation }) {
         </ProfileCard>
         <AppButton title="Meu perfil" variant="outline" onPress={() => navigation.navigate('PerfilPet')} style={styles.button} />
         <AppButton title="Histórico de notificações" variant="outline" onPress={() => navigation.navigate('HistoricoNotificacoes')} style={styles.button} />
+        <AppButton title="Sobre o App" variant="outline" onPress={() => navigation.navigate('Sobre')} style={styles.button} />
         <AppButton title="Sair da conta" onPress={handleLogout} loading={loading} disabled={loading} style={styles.button} />
       </ScrollView>
     </SafeAreaView>

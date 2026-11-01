@@ -2,15 +2,8 @@ import { useMemo } from 'react';
 import { Animated, FlatList, SafeAreaView, StyleSheet } from "react-native";
 import DevCard from '../components/ui/DevCard';
 import HeaderSection from '../components/ui/HeaderSection';
+import { TEAM_MEMBERS } from '../constants/team';
 import { useAppTheme } from '../context/ThemeProvider';
-
-const team = [
-  { name: "Luan Peixoto Marins Rocha", rm: "562258", photo: require('../../assets/images/react-logo.png') },
-  { name: "Mathaus Victor Souza Marcelino", rm: "564146", photo: require('../../assets/images/react-logo.png') },
-  { name: "Eduardo Novaes Mollo", rm: "561515", photo: require('../../assets/images/react-logo.png') },
-  { name: "Carlos Alberto Guedes Neto", rm: "566022", photo: require('../../assets/images/react-logo.png') },
-  { name: "Vinícius Luis Exposito Morassi Garcia", rm: "563340", photo: require('../../assets/images/react-logo.png') },
-];
 
 export default function PagDev() {
   const { colors } = useAppTheme();
@@ -21,7 +14,7 @@ export default function PagDev() {
     <SafeAreaView style={styles.safeArea}>
       <FlatList
         contentContainerStyle={styles.container}
-        data={team}
+        data={TEAM_MEMBERS}
         keyExtractor={(item) => item.rm}
         ListHeaderComponent={() => <HeaderSection title="Integrantes do Projeto ClyvoCare Pet" />}
         renderItem={({ item, index }) => (
