@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import { ActivityIndicator, View } from 'react-native';
 
 import { useAuth } from '../hooks/useAuth';
 import { useAppTheme } from '../context/ThemeProvider';
 import { useNotificationListeners } from '../hooks/useNotificationListeners';
+import { warmUpApi } from '../api/warmUp';
 import AgendaCuidadosScreen from '../screens/AgendaCuidadosScreen';
 import AlertasScreen from '../screens/AlertasScreen';
 import AppointmentDetailsScreen from '../screens/AppointmentDetailsScreen';
@@ -49,6 +50,9 @@ function AuthStack() {
 
 function AppStack() {
   useNotificationListeners();
+  useEffect(() => {
+    warmUpApi();
+  }, []);
   const { colors } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (

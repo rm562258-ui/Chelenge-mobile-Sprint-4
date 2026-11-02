@@ -1,9 +1,101 @@
 {
   "users": [],
-  "pets": [],
-  "appointments": [],
-  "vaccines": [],
-  "medications": [],
+  "pets": [
+    {
+      "id": "pet-001",
+      "name": "Mel",
+      "petNome": "Mel",
+      "type": "Cão",
+      "especie": "Cão",
+      "breed": "Golden Retriever",
+      "raca": "Golden Retriever",
+      "age": 5,
+      "idade": 5,
+      "weight": 24.5,
+      "peso": 24.5,
+      "ownerName": "Ana Souza",
+      "contact": "",
+      "createdAt": "2026-10-20T12:00:00.000Z",
+      "updatedAt": "2026-10-20T12:00:00.000Z"
+    },
+    {
+      "id": "pet-002",
+      "name": "Nino",
+      "petNome": "Nino",
+      "type": "Gato",
+      "especie": "Gato",
+      "breed": "Siamês",
+      "raca": "Siamês",
+      "age": 3,
+      "idade": 3,
+      "weight": 4.2,
+      "peso": 4.2,
+      "ownerName": "Ana Souza",
+      "contact": "",
+      "createdAt": "2026-10-21T12:00:00.000Z",
+      "updatedAt": "2026-10-21T12:00:00.000Z"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "appointment-001",
+      "petName": "Mel",
+      "date": "2026-11-07",
+      "time": "10:30",
+      "type": "Consulta preventiva",
+      "status": "Agendada",
+      "reminder": "1h",
+      "notes": "Avaliação anual de saúde.",
+      "veterinarian": "Dra. Marina Costa",
+      "clinic": "Clínica Clyvo Vet"
+    },
+    {
+      "id": "appointment-002",
+      "petName": "Nino",
+      "date": "2026-11-12",
+      "time": "15:00",
+      "type": "Retorno",
+      "status": "Agendada",
+      "reminder": "at_time",
+      "notes": "Revisão do acompanhamento veterinário.",
+      "veterinarian": "Dr. Rafael Lima",
+      "clinic": "Clínica Clyvo Vet"
+    }
+  ],
+  "vaccines": [
+    {
+      "id": "vaccine-001",
+      "name": "Vacina antirrábica",
+      "petId": "pet-001",
+      "date": "2026-10-20",
+      "dose": "Dose anual",
+      "nextDoseDate": "2027-10-20",
+      "notes": "Aplicação registrada na carteira vacinal."
+    },
+    {
+      "id": "vaccine-002",
+      "name": "Vacina V4",
+      "petId": "pet-002",
+      "date": "2026-10-21",
+      "dose": "Reforço anual",
+      "notes": "Aplicação registrada na carteira vacinal."
+    }
+  ],
+  "medications": [
+    {
+      "id": "medication-001",
+      "name": "Ômega 3",
+      "petId": "pet-001",
+      "frequency": "1 vez ao dia",
+      "dosage": "1 cápsula",
+      "quantity": 30,
+      "time": "08:00",
+      "startDate": "2026-10-25",
+      "endDate": "2026-11-25",
+      "notes": "Administrar junto à alimentação."
+    }
+  ],
   "notifications": [],
-  "aiHistory": []
+  "aiHistory": [],
+  "alerts": []
 }

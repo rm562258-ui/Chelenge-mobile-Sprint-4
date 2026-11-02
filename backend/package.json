@@ -1,0 +1,10 @@
+{
+  "name": "clyvocare-api",
+  "private": true,
+  "scripts": {
+    "start": "json-server db.json -H 0.0.0.0 -p ${PORT:-3333}"
+  },
+  "dependencies": {
+    "json-server": "1.0.0-beta.15"
+  }
+}

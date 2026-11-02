@@ -148,25 +148,23 @@ A aplicação está organizada separando telas, componentes, hooks, contexto, se
 
 ```text
 Chelenge-mobile-Sprint-3/
-├── app/                    # Arquivos de apoio do Expo Router presentes no projeto
 ├── assets/                 # Imagens e recursos visuais
-├── components/             # Componentes reutilizáveis
-├── hooks/                  # Hooks auxiliares
 ├── src/
-│   ├── api/                # Cliente HTTP, endpoints e serviços CRUD
-│   ├── components/         # Componentes reutilizáveis da aplicação
-│   ├── config/             # Configurações de ambiente
-│   ├── constants/          # Constantes e rotas
+│   ├── api/                # Axios, endpoints e aquecimento da API
+│   ├── components/         # Componentes reutilizáveis
+│   ├── config/             # Configuração de ambiente e dados da build
+│   ├── constants/          # Constantes da aplicação
 │   ├── context/            # Contextos da aplicação e autenticação
-│   ├── hooks/              # Hooks de API e regras reutilizáveis
+│   ├── hooks/              # Hooks de API e lógica reutilizável
 │   ├── navigation/         # Configuração do React Navigation
 │   ├── providers/          # Providers, incluindo TanStack Query
 │   ├── screens/            # Telas do aplicativo
-│   ├── services/           # Serviços de autenticação, CRUD e integrações
-│   ├── theme/              # Tema e estilos
-│   ├── types/              # Tipagens TypeScript
+│   ├── services/           # Serviços de autenticação, CRUD e notificações
+│   ├── theme/              # Tema e paletas de cores
 │   └── utils/              # Funções utilitárias
-├── db.json                 # Banco utilizado pelo JSON Server
+├── backend/
+│   ├── db.json             # Seed e armazenamento do JSON Server
+│   └── package.json        # Serviço da API para hospedagem no Render
 ├── App.js                  # Ponto de entrada da aplicação
 ├── app.json                # Configuração do Expo
 ├── package.json            # Dependências e scripts
@@ -233,6 +231,7 @@ EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=SEU_STORAGE_BUCKET
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=SEU_MESSAGING_SENDER_ID
 EXPO_PUBLIC_FIREBASE_APP_ID=SEU_APP_ID
 
+# Desenvolvimento: emulador Android
 EXPO_PUBLIC_API_URL=http://10.0.2.2:3333
 ```
 
@@ -254,7 +253,7 @@ Sem o provedor de e-mail/senha habilitado, o cadastro e o login não funcionarã
 
 ## 4. Configurar a API HTTP local
 
-A Sprint 3 utiliza uma API HTTP para as operações de dados. Neste repositório, essa API é executada localmente com **JSON Server**, utilizando o arquivo `db.json`.
+A API REST usa **JSON Server** e o arquivo `backend/db.json`. O mesmo serviço pode ser executado localmente ou hospedado no Render.
 
 A aplicação possui endpoints para:
 
@@ -287,7 +286,7 @@ O código centraliza as URLs em `src/api/endpoints.ts` e as requisições são r
 
 A especificação da Sprint 3 exige integração HTTP real, uso de TanStack Query, pelo menos duas funcionalidades dependentes da API e CRUD completo nas funcionalidades avaliadas. fileciteturn1file0L25-L42
 
-## 5. Executar o JSON Server
+## 5. Executar a API local
 
 Abra um terminal na pasta do projeto e execute:
 
@@ -295,7 +294,7 @@ Abra um terminal na pasta do projeto e execute:
 npm run api
 ```
 
-A API ficará disponível na porta `3333`.
+A API ficará disponível na porta `3333`. O seed contém registros iniciais; o disco do plano gratuito do Render é efêmero, portanto os dados gravados na nuvem podem ser redefinidos quando a instância reiniciar.
 
 Por padrão, para o **emulador Android do Android Studio**, utilize no `.env`:
 
@@ -328,6 +327,24 @@ O endereço deve ser o IP real do computador na rede utilizada durante o teste.
 - **Celular físico:** `http://IP_DO_COMPUTADOR:3333`
 
 Depois de alterar o `.env`, reinicie o Expo para que a variável seja carregada.
+
+### Publicar a API no Render
+
+Crie um serviço **Web Service** apontando para este repositório e configure:
+
+- **Root Directory:** `backend`
+- **Build Command:** deixe vazio (ou `npm install`)
+- **Start Command:** `npm start`
+
+O serviço lê a porta atribuída pelo Render através de `PORT` e escuta em `0.0.0.0`. Após publicar, use a URL HTTPS fornecida pelo Render no `.env` usado para gerar a build do aplicativo:
+
+```env
+EXPO_PUBLIC_API_URL=https://SEU_SERVICO.onrender.com
+```
+
+Essa variável é incorporada à build; não use `localhost`, IP privado ou `10.0.2.2` numa versão publicada.
+
+> **Limitação de segurança:** a API JSON Server não implementa autenticação nem valida o token Bearer do Firebase enviado pelo aplicativo. Os dados servidos por essa API não têm controle de acesso por usuário.
 
 ## 6. Executar o aplicativo
 
@@ -434,7 +451,7 @@ Axios
  ↓
 API HTTP / JSON Server
  ↓
-db.json
+backend/db.json
 ```
 
 As mutações invalidam as queries correspondentes para atualizar os dados apresentados na interface sem exigir reinicialização manual do aplicativo.
@@ -465,7 +482,7 @@ Utilizado para armazenamento seguro de informações relacionadas à sessão/tok
 
 ### JSON Server
 
-Utilizado como API HTTP local para persistência dos dados de pets, consultas, vacinas, medicamentos e demais recursos definidos em `db.json`.
+Utilizado pela API JSON Server para dados de pets, consultas, vacinas, medicamentos e demais recursos definidos em `backend/db.json`.
 
 ## 11. Telas e rotas
 
