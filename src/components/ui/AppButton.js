@@ -23,16 +23,16 @@ export default function AppButton({ title, onPress, variant = 'solid', disabled,
 
 const createStyles = (colors) => StyleSheet.create({
   button: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    paddingVertical: 11,
+    paddingHorizontal: 14,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: colors.text,
     shadowOpacity: 0.06,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
+    elevation: 2,
   },
   solid: {
     backgroundColor: colors.primary,
@@ -48,7 +48,7 @@ const createStyles = (colors) => StyleSheet.create({
   text: {
     color: colors.primaryText,
     fontWeight: '700',
-    fontSize: 16,
+    fontSize: 15,
   },
   textOutline: {
     color: colors.text,

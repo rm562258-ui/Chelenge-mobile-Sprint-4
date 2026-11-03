@@ -58,10 +58,10 @@ export default function MedicationDetailsScreen({ route, navigation }) {
                     <Text style={{ color: colors.text, marginTop: 8 }}>Fim: {med.endDate ? formatDisplayDate(med.endDate) : 'Uso contínuo'}</Text>
                     <Text style={{ color: colors.text, marginTop: 8 }}>{med.notes || ''}</Text>
                 </ProfileCard>
-                <View style={{ height: 12 }} />
-                <AppButton title="Editar" onPress={() => navigation.navigate('MedicationForm', { id })} />
-                <View style={{ height: 8 }} />
-                <AppButton title="Excluir" variant="outline" onPress={handleDelete} loading={deleteMutation.isPending} />
+                <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                    <AppButton title="Editar" onPress={() => navigation.navigate('MedicationForm', { id })} style={{ flex: 1 }} />
+                    <AppButton title="Excluir" variant="outline" onPress={handleDelete} loading={deleteMutation.isPending} style={{ flex: 1 }} />
+                </View>
             </ScrollView>
         </SafeAreaView>
     );

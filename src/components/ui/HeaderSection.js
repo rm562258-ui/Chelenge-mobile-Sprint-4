@@ -14,7 +14,7 @@ export default function HeaderSection({ title, subtitle, style }) {
 }
 
 const createStyles = (colors) => StyleSheet.create({
-  container: { width: '100%', paddingVertical: 18 },
-  title: { fontSize: 22, fontWeight: '800', color: colors.text },
+  container: { width: '100%', paddingVertical: 8 },
+  title: { fontSize: 20, fontWeight: '800', color: colors.text },
   subtitle: { color: colors.textMuted, marginTop: 4 },
 });

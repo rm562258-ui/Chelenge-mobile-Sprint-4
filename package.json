@@ -3,7 +3,7 @@
   "main": "App.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --go",
     "dev": "expo start --port 8082",
     "api": "json-server backend/db.json --port 3333",
     "android": "expo run:android",

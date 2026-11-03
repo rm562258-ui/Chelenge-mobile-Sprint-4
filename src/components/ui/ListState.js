@@ -16,9 +16,9 @@ export function ErrorState({ title = 'Não foi possível carregar os dados.', on
 }
 
 const createStyles = (colors) => StyleSheet.create({
-  container: { alignItems: 'center', padding: 28 },
+  container: { alignItems: 'center', padding: 16 },
   title: { color: colors.text, fontWeight: '700', fontSize: 16, textAlign: 'center' },
   errorTitle: { color: colors.danger, fontWeight: '700', fontSize: 16, textAlign: 'center' },
   description: { color: colors.placeholder, marginTop: 8, textAlign: 'center' },
-  button: { marginTop: 16 },
+  button: { marginTop: 12 },
 });

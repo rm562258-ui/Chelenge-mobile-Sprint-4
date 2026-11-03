@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppButton from '../components/ui/AppButton';
 import ProfileCard from '../components/ui/ProfileCard';
+import QuickActions from '../components/ui/QuickActions';
 import { UserContext } from "../context/UserContext";
 import { useCareProfile } from '../hooks/useCareProfile';
 import { useDeletePet, usePets } from '../hooks/usePets';
@@ -65,7 +66,7 @@ export default function PagPerfil({ navigation }) {
               <Image source={{ uri: user.foto }} style={styles.avatar} />
             ) : (
               <View style={styles.placeholder}>
-                <Text style={{ fontSize: 56 }}>🐾</Text>
+                <Text style={{ fontSize: 40 }}>🐾</Text>
               </View>
             )}
           </View>
@@ -95,10 +96,10 @@ export default function PagPerfil({ navigation }) {
                   <Text style={{ color: pet.pendingSync ? colors.placeholder : colors.success, fontSize: 12, fontWeight: '700', marginTop: 8 }}>
                     {pet.pendingSync ? 'Salvo offline' : 'Sincronizado'}
                   </Text>
-                  <View style={{ height: 8 }} />
-                  <AppButton title="Editar pet" onPress={() => navigation.navigate('CadastroPet', { id: pet.id })} variant="outline" />
-                  <View style={{ height: 8 }} />
-                  <AppButton title="Excluir pet" onPress={() => handleDeletePet(pet)} variant="outline" disabled={deletePetMutation.isPending} />
+                  <View style={styles.actions}>
+                    <AppButton title="Editar" onPress={() => navigation.navigate('CadastroPet', { id: pet.id })} variant="outline" style={styles.action} />
+                    <AppButton title="Excluir" onPress={() => handleDeletePet(pet)} variant="outline" disabled={deletePetMutation.isPending} style={styles.action} />
+                  </View>
                 </ProfileCard>
               ))}
 
@@ -119,12 +120,16 @@ export default function PagPerfil({ navigation }) {
                 <Text style={{ color: colors.textMuted, marginTop: 6 }}>{user.lembretesAtivos ? 'Lembretes ativos' : 'Lembretes desativados'}</Text>
               </ProfileCard>
 
-              <View style={{ height: 8 }} />
-              <AppButton title="Agenda de Cuidados" onPress={() => navigation.navigate('AgendaCuidados')} variant="outline" style={{ marginBottom: 12 }} icon="📅" />
-              <AppButton title="Alertas e Recomendações" onPress={() => navigation.navigate('Alertas')} variant="outline" style={{ marginBottom: 12 }} icon="⚠️" />
-              <AppButton title="Histórico de notificações" onPress={() => navigation.navigate('HistoricoNotificacoes')} variant="outline" style={{ marginBottom: 12 }} icon="🔔" />
-              <AppButton title="Configurações" onPress={() => navigation.navigate('Configuracoes')} variant="outline" style={{ marginBottom: 12 }} icon="⚙️" />
-              <AppButton title="Limpar dados" onPress={handleClear} variant="outline" icon="🗑️" />
+              <QuickActions
+                title="Atalhos"
+                actions={[
+                  { label: 'Agenda', icon: '📅', onPress: () => navigation.navigate('AgendaCuidados') },
+                  { label: 'Alertas', icon: '⚠️', onPress: () => navigation.navigate('Alertas') },
+                  { label: 'Notificações', icon: '🔔', onPress: () => navigation.navigate('HistoricoNotificacoes') },
+                  { label: 'Configurações', icon: '⚙️', onPress: () => navigation.navigate('Configuracoes') },
+                  { label: 'Limpar dados', icon: '🗑️', onPress: handleClear, tone: 'danger' },
+                ]}
+              />
             </>
           )}
         </View>
@@ -136,11 +141,13 @@ export default function PagPerfil({ navigation }) {
 const createStyles = (colors) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   container: { padding: 0 },
-  headerBlock: { height: 200, position: 'relative' },
+  headerBlock: { height: 96, position: 'relative' },
   headerColor: { backgroundColor: colors.accent, height: '100%' },
-  avatarWrap: { position: 'absolute', left: 0, right: 0, top: 120, alignItems: 'center' },
-  avatar: { width: 140, height: 140, borderRadius: 70, borderWidth: 6, borderColor: colors.surface },
-  placeholder: { width: 140, height: 140, borderRadius: 70, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
-  mainContent: { padding: 16, marginTop: 36 },
+  avatarWrap: { position: 'absolute', left: 0, right: 0, top: 48, alignItems: 'center' },
+  avatar: { width: 96, height: 96, borderRadius: 48, borderWidth: 4, borderColor: colors.surface },
+  placeholder: { width: 96, height: 96, borderRadius: 48, borderWidth: 4, borderColor: colors.background, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
+  mainContent: { padding: 16, paddingTop: 0, marginTop: 56 },
   name: { fontSize: 20, fontWeight: '800', color: colors.text, textAlign: 'center' },
+  actions: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  action: { flex: 1 },
 });

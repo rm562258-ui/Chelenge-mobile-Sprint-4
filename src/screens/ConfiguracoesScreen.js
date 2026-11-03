@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
+import QuickActions from '../components/ui/QuickActions';
 import { useAppTheme } from '../context/ThemeProvider';
 import { useAuth } from '../hooks/useAuth';
 import { useReminderSettings } from '../hooks/useReminderSettings';
@@ -57,28 +57,35 @@ export default function ConfiguracoesScreen({ navigation }) {
           </View>
         </ProfileCard>
         <ProfileCard title="Aparência" icon="🎨">
-          {themeOptions.map((option) => {
-            const selected = mode === option.value;
-            return (
-              <TouchableOpacity
-                key={option.value}
-                accessibilityRole="radio"
-                accessibilityState={{ selected }}
-                onPress={() => handleThemeChange(option.value)}
-                style={styles.themeOption}
-              >
-                <View style={[styles.radio, selected && styles.radioSelected]}>
-                  {selected ? <View style={styles.radioDot} /> : null}
-                </View>
-                <Text style={styles.title}>{option.label}</Text>
-              </TouchableOpacity>
-            );
-          })}
+          <View style={styles.themeRow}>
+            {themeOptions.map((option) => {
+              const selected = mode === option.value;
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected }}
+                  onPress={() => handleThemeChange(option.value)}
+                  style={styles.themeOption}
+                >
+                  <View style={[styles.radio, selected && styles.radioSelected]}>
+                    {selected ? <View style={styles.radioDot} /> : null}
+                  </View>
+                  <Text style={styles.title}>{option.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </ProfileCard>
-        <AppButton title="Meu perfil" variant="outline" onPress={() => navigation.navigate('PerfilPet')} style={styles.button} />
-        <AppButton title="Histórico de notificações" variant="outline" onPress={() => navigation.navigate('HistoricoNotificacoes')} style={styles.button} />
-        <AppButton title="Sobre o App" variant="outline" onPress={() => navigation.navigate('Sobre')} style={styles.button} />
-        <AppButton title="Sair da conta" onPress={handleLogout} loading={loading} disabled={loading} style={styles.button} />
+        <QuickActions
+          columns={4}
+          actions={[
+            { label: 'Meu perfil', icon: '🐶', onPress: () => navigation.navigate('PerfilPet') },
+            { label: 'Notificações', icon: '🔔', onPress: () => navigation.navigate('HistoricoNotificacoes') },
+            { label: 'Sobre o App', icon: 'ℹ️', onPress: () => navigation.navigate('Sobre') },
+            { label: loading ? 'Saindo...' : 'Sair da conta', icon: '🚪', onPress: handleLogout, tone: 'danger', disabled: loading },
+          ]}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -91,8 +98,8 @@ const createStyles = (colors) => StyleSheet.create({
   settingText: { flex: 1 },
   title: { color: colors.text, fontWeight: '700' },
   description: { color: colors.placeholder, marginTop: 4 },
-  button: { marginTop: 12 },
-  themeOption: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: 12 },
+  themeRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  themeOption: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, gap: 8 },
   radio: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: colors.placeholder, alignItems: 'center', justifyContent: 'center' },
   radioSelected: { borderColor: colors.primary },
   radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary },

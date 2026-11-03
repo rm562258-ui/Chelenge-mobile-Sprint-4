@@ -34,7 +34,7 @@ function OptionGroup({ label, options, value, onChange, styles, horizontal = fal
     return (
         <View style={styles.optionGroup}>
             <Text style={styles.label}>{label}</Text>
-            <View style={horizontal ? styles.optionRow : null}>
+            <View style={horizontal ? styles.optionRow : styles.optionWrap}>
                 {options.map((option) => {
                     const selected = value === option.value;
                     return (
@@ -107,7 +107,7 @@ export default function AppointmentFormScreen({ route, navigation }) {
                     )} />
 
                     <Controller control={control} name="status" render={({ field }) => (
-                        <OptionGroup label="Situação" options={APPOINTMENT_STATUS_OPTIONS} value={field.value} onChange={field.onChange} styles={styles} />
+                        <OptionGroup label="Situação" options={APPOINTMENT_STATUS_OPTIONS} value={field.value} onChange={field.onChange} styles={styles} horizontal />
                     )} />
 
                     <Controller control={control} name="reminder" render={({ field }) => (
@@ -141,13 +141,14 @@ export default function AppointmentFormScreen({ route, navigation }) {
 const createStyles = (colors) => StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: colors.background },
     container: { padding: 16 },
-    optionGroup: { marginTop: 16 },
-    label: { color: colors.text, fontSize: 12, fontWeight: '600', marginBottom: 8 },
-    option: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 12, marginBottom: 8, backgroundColor: colors.surface },
+    optionGroup: { marginTop: 10 },
+    label: { color: colors.text, fontSize: 12, fontWeight: '600', marginBottom: 6 },
+    option: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 9, paddingHorizontal: 12, backgroundColor: colors.surface },
     optionSelected: { borderColor: colors.primary, backgroundColor: colors.surfaceAlt },
     optionText: { color: colors.textMuted },
     optionTextSelected: { color: colors.primary, fontWeight: '700' },
     optionRow: { flexDirection: 'row', gap: 8 },
+    optionWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
     optionHorizontal: { flex: 1, alignItems: 'center' },
     errorText: { color: colors.danger, marginTop: 6, fontSize: 12 },
 });

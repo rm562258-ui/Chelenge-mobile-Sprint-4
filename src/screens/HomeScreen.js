@@ -1,29 +1,74 @@
 import { useMemo } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
-import { EmptyState, ErrorState } from '../components/ui/ListState';
-import LoadingSkeleton from '../components/ui/LoadingSkeleton';
-import ProfileCard from '../components/ui/ProfileCard';
+import QuickActions from '../components/ui/QuickActions';
+import SummaryTile from '../components/ui/SummaryTile';
 import { useAuth } from '../hooks/useAuth';
 import { useAppTheme } from '../context/ThemeProvider';
 import { useHomeSummary } from '../hooks/useHomeSummary';
 import { formatDisplayDate } from '../utils/date';
+
+// Conteúdo comum das caixas do resumo: carregando, erro, vazio ou o item mais próximo.
+function TileContent({ query, isEmpty, emptyText, emptyAction, styles, colors, children }) {
+  if (query.isLoading) return <ActivityIndicator size="small" color={colors.primary} style={styles.tileLoading} />;
+  if (query.isError) {
+    return (
+      <>
+        <Text style={styles.tileError}>Erro ao carregar.</Text>
+        <Text style={styles.tileLink}>Tentar de novo ›</Text>
+      </>
+    );
+  }
+  if (isEmpty) {
+    return (
+      <>
+        <Text style={styles.tileMuted}>{emptyText}</Text>
+        <Text style={styles.tileLink}>{emptyAction} ›</Text>
+      </>
+    );
+  }
+  return children;
+}
+
+// Ao tocar na caixa: tenta de novo se deu erro, abre o cadastro se está vazia ou abre o item mais próximo.
+const tilePress = (query, isEmpty, openItem, openForm) => {
+  if (query.isLoading) return undefined;
+  if (query.isError) return () => query.refetch();
+  return isEmpty ? openForm : openItem;
+};
 
 export default function HomeScreen({ navigation }) {
   const { colors } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { logout, loading } = useAuth();
   const summary = useHomeSummary();
-  const refreshQueries = [
-    { key: 'pets', query: summary.petsQuery },
-    { key: 'appointments', query: summary.appointmentsQuery },
-    { key: 'vaccines', query: summary.vaccinesQuery },
-    { key: 'medications', query: summary.medicationsQuery },
+  const { nextAppointment, nextVaccine, nextMedication } = summary;
+  const refreshing = [summary.petsQuery, summary.appointmentsQuery, summary.vaccinesQuery, summary.medicationsQuery]
+    .some((query) => query.isFetching);
+
+  const shortcuts = [
+    { label: 'Meus Pets', icon: '🐾', onPress: () => navigation.navigate('Pets') },
+    { label: 'Perfil do Pet', icon: '🐶', onPress: () => navigation.navigate('PerfilPet') },
+    { label: 'Agenda', icon: '📅', onPress: () => navigation.navigate('AgendaCuidados') },
+    { label: 'Vacinas', icon: '💉', onPress: () => navigation.navigate('Vaccines') },
+    { label: 'Medicamentos', icon: '💊', onPress: () => navigation.navigate('Medications') },
+    { label: 'Alertas', icon: '⚠️', onPress: () => navigation.navigate('Alertas') },
+    { label: 'Notificações', icon: '🔔', onPress: () => navigation.navigate('HistoricoNotificacoes') },
+    { label: 'FAQ', icon: '❔', onPress: () => navigation.navigate('IaVeterinaria') },
+    { label: 'Integrantes', icon: '👥', onPress: () => navigation.navigate('Equipe') },
+    { label: 'Configurações', icon: '⚙️', onPress: () => navigation.navigate('Configuracoes') },
+    { label: 'Sobre o App', icon: 'ℹ️', onPress: () => navigation.navigate('Sobre') },
+    {
+      label: loading ? 'Saindo...' : 'Sair',
+      icon: '🚪',
+      tone: 'danger',
+      disabled: loading,
+      // O AuthContext já informa o erro ao usuário.
+      onPress: () => { void logout().catch(() => undefined); },
+    },
   ];
-  const refreshing = refreshQueries.some(({ query }) => query.isFetching);
 
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
@@ -32,113 +77,86 @@ export default function HomeScreen({ navigation }) {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={summary.refetchAll} />}
       >
         <HeaderSection
-          title="ClyvoCare Pet"
-          subtitle={summary.tutorName ? `Olá, ${summary.tutorName}` : 'Acompanhe os cuidados do seu pet'}
+          title={summary.tutorName ? `Olá, ${summary.tutorName.split(' ')[0]}` : 'Olá!'}
+          subtitle="Acompanhe os cuidados do seu pet"
         />
 
-        <ProfileCard title="Meus pets" icon="🐾">
-          {summary.petsQuery.isLoading ? <LoadingSkeleton rows={1} /> : summary.petsQuery.isError ? (
-            <ErrorState title="Não foi possível carregar os pets." onRetry={summary.petsQuery.refetch} />
-          ) : summary.petsCount === 0 ? (
-            <>
-              <EmptyState title="Nenhum pet cadastrado." description="Cadastre seu primeiro pet para acompanhar os cuidados." />
-              <AppButton title="Cadastrar Pet" onPress={() => navigation.navigate('CadastroPet')} />
-            </>
-          ) : (
-            <Text style={{ color: colors.text }}>{summary.petsCount} {summary.petsCount === 1 ? 'pet cadastrado' : 'pets cadastrados'}</Text>
-          )}
-        </ProfileCard>
+        <View style={styles.summaryGrid}>
+          <SummaryTile
+            title="Meus pets"
+            icon="🐾"
+            onPress={tilePress(summary.petsQuery, summary.petsCount === 0, () => navigation.navigate('Pets'), () => navigation.navigate('CadastroPet'))}
+          >
+            <TileContent query={summary.petsQuery} isEmpty={summary.petsCount === 0} emptyText="Nenhum pet cadastrado." emptyAction="Cadastrar" styles={styles} colors={colors}>
+              <Text style={styles.tileValue}>{summary.petsCount}</Text>
+              <Text style={styles.tileMuted}>{summary.petsCount === 1 ? 'pet cadastrado' : 'pets cadastrados'}</Text>
+              <Text style={styles.tileLink}>Ver pets ›</Text>
+            </TileContent>
+          </SummaryTile>
 
-        <ProfileCard title="Próxima consulta" icon="📅">
-          {summary.appointmentsQuery.isLoading ? <LoadingSkeleton rows={1} /> : summary.appointmentsQuery.isError ? (
-            <ErrorState title="Não foi possível carregar as consultas." onRetry={summary.appointmentsQuery.refetch} />
-          ) : summary.nextAppointment ? (
-            <TouchableOpacity onPress={() => navigation.navigate('AppointmentDetails', { id: summary.nextAppointment.id })} accessibilityRole="button">
-              <Text style={styles.itemTitle}>{summary.nextAppointment.type || 'Consulta'} • {summary.nextAppointment.petName || 'Pet'}</Text>
-              <Text style={styles.itemDetail}>
-                {formatDisplayDate(summary.nextAppointment.date)}{summary.nextAppointment.time ? ` às ${summary.nextAppointment.time}` : ''}
-              </Text>
-              {summary.nextAppointment.isOverdue ? (
-                <Text style={styles.overdue}>O horário já passou: toque para marcar como concluída.</Text>
+          <SummaryTile
+            title="Próxima consulta"
+            icon="📅"
+            onPress={tilePress(summary.appointmentsQuery, !nextAppointment, () => navigation.navigate('AppointmentDetails', { id: nextAppointment.id }), () => navigation.navigate('AppointmentForm'))}
+          >
+            <TileContent query={summary.appointmentsQuery} isEmpty={!nextAppointment} emptyText="Nenhuma consulta pendente." emptyAction="Agendar" styles={styles} colors={colors}>
+              {nextAppointment ? (
+                <>
+                  <Text style={styles.tileStrong} numberOfLines={1}>{nextAppointment.type || 'Consulta'} • {nextAppointment.petName || 'Pet'}</Text>
+                  <Text style={styles.tileMuted}>
+                    {formatDisplayDate(nextAppointment.date)}{nextAppointment.time ? ` às ${nextAppointment.time}` : ''}
+                  </Text>
+                  {nextAppointment.isOverdue ? <Text style={styles.tileWarning}>Horário já passou</Text> : null}
+                </>
               ) : null}
-              <Text style={styles.link}>Ver detalhes ›</Text>
-            </TouchableOpacity>
-          ) : (
-            <>
-              <EmptyState title="Nenhuma consulta pendente." description="Agende uma consulta para acompanhar o próximo cuidado." />
-              <AppButton title="Agendar consulta" onPress={() => navigation.navigate('AppointmentForm')} />
-            </>
-          )}
-        </ProfileCard>
+            </TileContent>
+          </SummaryTile>
 
-        <ProfileCard title="Próximo reforço de vacina" icon="💉">
-          {summary.vaccinesQuery.isLoading ? <LoadingSkeleton rows={1} /> : summary.vaccinesQuery.isError ? (
-            <ErrorState title="Não foi possível carregar as vacinas." onRetry={summary.vaccinesQuery.refetch} />
-          ) : summary.nextVaccine ? (
-            <TouchableOpacity onPress={() => navigation.navigate('VaccineDetails', { id: summary.nextVaccine.id })} accessibilityRole="button">
-              <Text style={styles.itemTitle}>
-                {summary.nextVaccine.name || 'Vacina'}{summary.nextVaccine.petName ? ` • ${summary.nextVaccine.petName}` : ''}
-              </Text>
-              <Text style={styles.itemDetail}>
-                {summary.nextVaccine.isOverdue ? 'Reforço vencido desde' : 'Reforço em'} {formatDisplayDate(summary.nextVaccine.dueDate)}
-              </Text>
-              {summary.nextVaccine.isOverdue ? (
-                <Text style={styles.overdue}>Agende o reforço com o veterinário.</Text>
+          <SummaryTile
+            title="Próximo reforço"
+            icon="💉"
+            onPress={tilePress(summary.vaccinesQuery, !nextVaccine, () => navigation.navigate('VaccineDetails', { id: nextVaccine.id }), () => navigation.navigate('VaccineForm'))}
+          >
+            <TileContent query={summary.vaccinesQuery} isEmpty={!nextVaccine} emptyText="Nenhum reforço registrado." emptyAction="Registrar" styles={styles} colors={colors}>
+              {nextVaccine ? (
+                <>
+                  <Text style={styles.tileStrong} numberOfLines={1}>{nextVaccine.name || 'Vacina'}</Text>
+                  {nextVaccine.petName ? <Text style={styles.tileMuted} numberOfLines={1}>{nextVaccine.petName}</Text> : null}
+                  <Text style={nextVaccine.isOverdue ? styles.tileWarning : styles.tileMuted}>
+                    {nextVaccine.isOverdue ? 'Vencido em' : 'Em'} {formatDisplayDate(nextVaccine.dueDate)}
+                  </Text>
+                </>
               ) : null}
-              <Text style={styles.link}>Ver detalhes ›</Text>
-            </TouchableOpacity>
-          ) : (
-            <>
-              <EmptyState title="Nenhum reforço registrado." description="Registre a data do próximo reforço na carteira vacinal." />
-              <AppButton title="Registrar vacina" onPress={() => navigation.navigate('VaccineForm')} />
-            </>
-          )}
-        </ProfileCard>
+            </TileContent>
+          </SummaryTile>
 
-        <ProfileCard title="Medicamentos em andamento" icon="💊">
-          {summary.medicationsQuery.isLoading ? <LoadingSkeleton rows={1} /> : summary.medicationsQuery.isError ? (
-            <ErrorState title="Não foi possível carregar os medicamentos." onRetry={summary.medicationsQuery.refetch} />
-          ) : summary.nextMedication ? (
-            <TouchableOpacity onPress={() => navigation.navigate('MedicationDetails', { id: summary.nextMedication.id })} accessibilityRole="button">
-              <Text style={styles.itemTitle}>
-                {summary.nextMedication.name || 'Medicamento'}{summary.nextMedication.petName ? ` • ${summary.nextMedication.petName}` : ''}
-              </Text>
-              {summary.nextMedication.dosage || summary.nextMedication.frequency ? (
-                <Text style={styles.itemDetail}>
-                  {[summary.nextMedication.dosage, summary.nextMedication.frequency].filter(Boolean).join(' • ')}
-                </Text>
+          <SummaryTile
+            title="Medicamentos"
+            icon="💊"
+            onPress={tilePress(summary.medicationsQuery, !nextMedication, () => navigation.navigate('MedicationDetails', { id: nextMedication.id }), () => navigation.navigate('MedicationForm'))}
+          >
+            <TileContent query={summary.medicationsQuery} isEmpty={!nextMedication} emptyText="Nenhum em andamento." emptyAction="Registrar" styles={styles} colors={colors}>
+              {nextMedication ? (
+                <>
+                  <Text style={styles.tileStrong} numberOfLines={1}>{nextMedication.name || 'Medicamento'}</Text>
+                  <Text style={styles.tileMuted} numberOfLines={1}>
+                    {[nextMedication.petName, nextMedication.dosage].filter(Boolean).join(' • ') || 'Dosagem não informada'}
+                  </Text>
+                  <Text style={styles.tileMuted}>
+                    {nextMedication.startsLater
+                      ? `Começa em ${formatDisplayDate(nextMedication.startDate)}`
+                      : nextMedication.endDate ? `Até ${formatDisplayDate(nextMedication.endDate)}` : 'Uso contínuo'}
+                  </Text>
+                  {summary.medicationsInProgress > 1 ? (
+                    <Text style={styles.tileLink}>+{summary.medicationsInProgress - 1} em andamento</Text>
+                  ) : null}
+                </>
               ) : null}
-              <Text style={styles.itemDetail}>
-                {summary.nextMedication.startsLater
-                  ? `Começa em ${formatDisplayDate(summary.nextMedication.startDate)}`
-                  : summary.nextMedication.endDate ? `Até ${formatDisplayDate(summary.nextMedication.endDate)}` : 'Uso contínuo'}
-              </Text>
-              {summary.medicationsInProgress > 1 ? (
-                <Text style={styles.itemDetail}>+{summary.medicationsInProgress - 1} em andamento</Text>
-              ) : null}
-              <Text style={styles.link}>Ver detalhes ›</Text>
-            </TouchableOpacity>
-          ) : (
-            <>
-              <EmptyState title="Nenhum medicamento em andamento." description="Cadastre um tratamento para acompanhar seu pet." />
-              <AppButton title="Registrar medicamento" onPress={() => navigation.navigate('MedicationForm')} />
-            </>
-          )}
-        </ProfileCard>
+            </TileContent>
+          </SummaryTile>
+        </View>
 
-        <View style={{ height: 8 }} />
-        <AppButton title="Cadastrar Pet" onPress={() => navigation.navigate('CadastroPet')} style={{ marginBottom: 8 }} />
-        <AppButton title="Meus Pets" onPress={() => navigation.navigate('Pets')} variant="outline" style={{ marginBottom: 8 }} />
-        <AppButton title="Ver Perfil do Pet" onPress={() => navigation.navigate('PerfilPet')} variant="outline" style={{ marginBottom: 8 }} />
-        <AppButton title="Agenda de Cuidados" onPress={() => navigation.navigate('AgendaCuidados')} variant="outline" style={{ marginBottom: 8 }} />
-        <AppButton title="Carteira Vacinal" onPress={() => navigation.navigate('Vaccines')} variant="outline" style={{ marginBottom: 8 }} />
-        <AppButton title="Medicamentos" onPress={() => navigation.navigate('Medications')} variant="outline" style={{ marginBottom: 8 }} />
-        <AppButton title="FAQ" onPress={() => navigation.navigate('IaVeterinaria')} variant="outline" style={{ marginBottom: 8 }} />
-        <AppButton title="Integrantes" onPress={() => navigation.navigate('Equipe')} variant="outline" style={{ marginBottom: 8 }} />
-        <AppButton title="Alertas e Recomendações" onPress={() => navigation.navigate('Alertas')} variant="outline" style={{ marginBottom: 8 }} />
-        <AppButton title="Histórico de notificações" onPress={() => navigation.navigate('HistoricoNotificacoes')} variant="outline" style={{ marginBottom: 8 }} />
-        <AppButton title="Configurações" onPress={() => navigation.navigate('Configuracoes')} variant="outline" style={{ marginBottom: 8 }} />
-        <AppButton title="Sair" onPress={logout} variant="outline" loading={loading} disabled={loading} />
+        <QuickActions title="Acesso rápido" actions={shortcuts} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -146,9 +164,13 @@ export default function HomeScreen({ navigation }) {
 
 const createStyles = (colors) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
-  container: { padding: 16 },
-  itemTitle: { color: colors.text, fontWeight: '600' },
-  itemDetail: { color: colors.textMuted, marginTop: 6 },
-  overdue: { color: colors.warning, fontWeight: '600', marginTop: 6 },
-  link: { color: colors.primary, fontWeight: '700', marginTop: 8 },
+  container: { padding: 16, paddingTop: 4 },
+  summaryGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10, marginBottom: 12 },
+  tileLoading: { alignSelf: 'flex-start', marginTop: 8 },
+  tileValue: { color: colors.text, fontSize: 24, fontWeight: '800' },
+  tileStrong: { color: colors.text, fontWeight: '700' },
+  tileMuted: { color: colors.textMuted, fontSize: 12, marginTop: 4 },
+  tileWarning: { color: colors.warning, fontSize: 12, fontWeight: '700', marginTop: 4 },
+  tileError: { color: colors.danger, fontSize: 12, fontWeight: '700' },
+  tileLink: { color: colors.primary, fontSize: 12, fontWeight: '700', marginTop: 6 },
 });

@@ -27,15 +27,15 @@ export default function AppInput({ label, value, onChangeText, placeholder, left
 }
 
 const createStyles = (colors) => StyleSheet.create({
-  wrapper: { width: '100%', marginTop: 8 },
-  label: { fontSize: 12, color: colors.text, marginBottom: 6, fontWeight: '600' },
+  wrapper: { width: '100%', marginTop: 6 },
+  label: { fontSize: 12, color: colors.text, marginBottom: 4, fontWeight: '600' },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.inputBackground,
     paddingHorizontal: 12,
-    borderRadius: 18,
-    height: 52,
+    borderRadius: 14,
+    height: 46,
     borderWidth: 1,
     borderColor: colors.border,
   },

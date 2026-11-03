@@ -50,10 +50,10 @@ export default function PetDetailsScreen({ route, navigation }) {
                     <Text style={{ color: colors.text }}>Peso: {(pet.peso || pet.weight) ? `${pet.peso || pet.weight} kg` : '-'}</Text>
                 </ProfileCard>
 
-                <View style={{ height: 12 }} />
-                <AppButton title="Editar" onPress={() => navigation.navigate('CadastroPet', { id })} />
-                <View style={{ height: 8 }} />
-                <AppButton title="Excluir" variant="outline" onPress={handleDelete} loading={deleteMutation.isPending} />
+                <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                    <AppButton title="Editar" onPress={() => navigation.navigate('CadastroPet', { id })} style={{ flex: 1 }} />
+                    <AppButton title="Excluir" variant="outline" onPress={handleDelete} loading={deleteMutation.isPending} style={{ flex: 1 }} />
+                </View>
             </ScrollView>
         </SafeAreaView>
     );

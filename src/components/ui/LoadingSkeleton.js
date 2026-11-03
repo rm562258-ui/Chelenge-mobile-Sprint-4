@@ -19,8 +19,8 @@ export default function LoadingSkeleton({ rows = 3 }) {
 }
 
 const createStyles = (colors) => StyleSheet.create({
-  container: { padding: 16 },
-  card: { backgroundColor: colors.surface, borderRadius: 18, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border },
+  container: { padding: 8 },
+  card: { backgroundColor: colors.surface, borderRadius: 16, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.border },
   title: { height: 18, width: '48%', backgroundColor: colors.skeleton, borderRadius: 8, marginBottom: 14 },
   line: { height: 12, width: '88%', backgroundColor: colors.surfaceAlt, borderRadius: 8, marginBottom: 8 },
   shortLine: { height: 12, width: '62%', backgroundColor: colors.surfaceAlt, borderRadius: 8 },
