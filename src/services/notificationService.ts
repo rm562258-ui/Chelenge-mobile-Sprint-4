@@ -1,5 +1,6 @@
 import { createCrudService } from '../api/crudService';
 import { API_ENDPOINTS } from '../api/endpoints';
+import { userScope } from './userScope';
 
 export type NotificationPayload = {
     title: string;
@@ -11,6 +12,6 @@ export type NotificationPayload = {
     read: boolean;
 };
 
-const notificationService = createCrudService<NotificationPayload>(API_ENDPOINTS.notifications);
+const notificationService = createCrudService<NotificationPayload>(API_ENDPOINTS.notifications, { getScope: userScope });
 
 export default notificationService;

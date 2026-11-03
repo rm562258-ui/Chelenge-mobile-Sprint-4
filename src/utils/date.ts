@@ -55,3 +55,13 @@ export function combineDateAndTime(dateValue: Date | string, time: string): Date
 export function isPast(date: Date): boolean {
     return date.getTime() < Date.now();
 }
+
+export function isMedicationInProgress(endDate: string | undefined, referenceDate: Date = new Date()): boolean {
+    if (!endDate) return true;
+
+    const parsedEndDate = parseAppDate(endDate);
+    if (!parsedEndDate) return false;
+
+    const today = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
+    return parsedEndDate >= today;
+}

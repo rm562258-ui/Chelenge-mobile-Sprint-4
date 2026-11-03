@@ -1,7 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
 import { appointmentService, type AppointmentPayload } from '../services/appointmentService';
-import { getOfflineAppointments } from '../services/offlineAppointmentStorage';
 import {
     cancelAppointmentReminders,
     confirmAppointmentCreated,
@@ -12,29 +10,12 @@ import { showToast } from '../utils/toast';
 
 const APPOINTMENTS_QUERY_KEY = ['appointments'];
 
+// O fallback offline fica no serviço: sem conexão, a lista vem do cache do dispositivo.
 export function useAppointments() {
-    const queryKey = APPOINTMENTS_QUERY_KEY;
-    const qc = useQueryClient();
-
-    useEffect(() => {
-        void getOfflineAppointments().then((localAppointments) => {
-            if (localAppointments.length > 0) qc.setQueryData(APPOINTMENTS_QUERY_KEY, localAppointments);
-        });
-    }, [qc]);
-
-    const list = useQuery<any[], Error>({
-        queryKey,
-        queryFn: async () => {
-            const localAppointments = await getOfflineAppointments();
-            if (localAppointments.length > 0) qc.setQueryData(queryKey, localAppointments);
-            const result = await appointmentService.list();
-            return result.data;
-        },
+    return useQuery<any[], Error>({
+        queryKey: APPOINTMENTS_QUERY_KEY,
+        queryFn: () => appointmentService.list().then((result) => result.data),
     });
-
-    return {
-        ...list,
-    };
 }
 
 export function useCreateAppointment() {

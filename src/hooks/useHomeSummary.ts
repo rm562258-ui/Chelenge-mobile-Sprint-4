@@ -1,42 +1,19 @@
 import { useAppointments } from './useAppointments';
 import { useAuth } from './useAuth';
 import { useMedications } from './useMedications';
+import { usePetOptions } from './usePetOptions';
 import { usePets } from './usePets';
 import { useVaccines } from './useVaccines';
-import { combineDateAndTime, parseAppDate } from '../utils/date';
+import {
+    pickNextAppointment,
+    pickNextMedication,
+    pickNextVaccine,
+    type AppointmentSummaryItem,
+    type MedicationSummaryItem,
+    type VaccineSummaryItem,
+} from '../utils/homeSummary';
 
-type AppointmentSummaryItem = {
-    date?: string;
-    id?: string | number;
-    petName?: string;
-    status?: string;
-    time?: string;
-    type?: string;
-};
-
-type VaccineSummaryItem = {
-    boosterDate?: string;
-    id?: string | number;
-    name?: string;
-    nextDoseDate?: string;
-};
-
-type MedicationSummaryItem = {
-    endDate?: string;
-    id?: string | number;
-    name?: string;
-};
-
-const isMedicationInProgress = (medication: MedicationSummaryItem, today: Date) => {
-    if (!medication.endDate) return true;
-
-    const endDate = parseAppDate(medication.endDate);
-    if (!endDate) return false;
-
-    today.setHours(0, 0, 0, 0);
-    endDate.setHours(0, 0, 0, 0);
-    return endDate >= today;
-};
+const asArray = <T,>(data: unknown): T[] => (Array.isArray(data) ? data : []);
 
 export function useHomeSummary() {
     const { user } = useAuth();
@@ -44,44 +21,28 @@ export function useHomeSummary() {
     const appointmentsQuery = useAppointments();
     const vaccinesQuery = useVaccines();
     const medicationsQuery = useMedications();
+    const { getPetName } = usePetOptions();
 
     const now = new Date();
-    const appointments: AppointmentSummaryItem[] = Array.isArray(appointmentsQuery.data)
-        ? appointmentsQuery.data
-        : [];
-    const vaccines: VaccineSummaryItem[] = Array.isArray(vaccinesQuery.data)
-        ? vaccinesQuery.data
-        : [];
-    const medications: MedicationSummaryItem[] = Array.isArray(medicationsQuery.data)
-        ? medicationsQuery.data
-        : [];
-
-    const nextAppointment = appointments
-        .filter((appointment) => appointment.status === 'Agendada' && appointment.date && appointment.time)
-        .map((appointment) => ({
-            ...appointment,
-            scheduledAt: combineDateAndTime(appointment.date as string, appointment.time as string),
-        }))
-        .filter((appointment) => appointment.scheduledAt && appointment.scheduledAt > now)
-        .sort((first, second) => first.scheduledAt!.getTime() - second.scheduledAt!.getTime())[0] ?? null;
-
-    const nextVaccine = vaccines
-        .map((vaccine) => ({
-            ...vaccine,
-            date: parseAppDate(vaccine.nextDoseDate !== undefined ? vaccine.nextDoseDate : vaccine.boosterDate),
-        }))
-        .filter((vaccine) => vaccine.date && vaccine.date >= new Date(now.getFullYear(), now.getMonth(), now.getDate()))
-        .sort((first, second) => first.date!.getTime() - second.date!.getTime())[0] ?? null;
-
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const medicationsInProgress = medications.filter((medication) => isMedicationInProgress(medication, new Date(today))).length;
+    const petNameOf = (petId?: string | number) => (petId == null || petId === '' ? null : getPetName(petId));
+
+    const nextAppointment = pickNextAppointment(asArray<AppointmentSummaryItem>(appointmentsQuery.data), now);
+
+    const vaccine = pickNextVaccine(asArray<VaccineSummaryItem>(vaccinesQuery.data), today);
+    const nextVaccine = vaccine ? { ...vaccine, petName: petNameOf(vaccine.petId) } : null;
+
+    const medicationSummary = pickNextMedication(asArray<MedicationSummaryItem>(medicationsQuery.data), today);
+    const medication = medicationSummary.nextMedication;
+    const nextMedication = medication ? { ...medication, petName: petNameOf(medication.petId) } : null;
 
     return {
         tutorName: user?.displayName || user?.email || '',
         petsCount: Array.isArray(petsQuery.data) ? petsQuery.data.length : 0,
         nextAppointment,
         nextVaccine,
-        medicationsInProgress,
+        nextMedication,
+        medicationsInProgress: medicationSummary.inProgressCount,
         petsQuery,
         appointmentsQuery,
         vaccinesQuery,

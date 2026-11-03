@@ -2,18 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { z } from 'zod';
-
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
 import AppInput from '../components/ui/AppInput';
 import { useAuth } from '../hooks/useAuth';
 import { useAppTheme } from '../context/ThemeProvider';
-
-const loginSchema = z.object({
-    email: z.string().trim().email('Informe um e-mail válido.'),
-    password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres.'),
-});
+import { loginFormSchema } from '../utils/formSchemas';
 
 export default function LoginScreen() {
     const { colors } = useAppTheme();
@@ -26,7 +21,7 @@ export default function LoginScreen() {
         handleSubmit,
         formState: { errors, isSubmitting },
     } = useForm({
-        resolver: zodResolver(loginSchema),
+        resolver: zodResolver(loginFormSchema),
         defaultValues: {
             email: '',
             password: '',
@@ -34,7 +29,11 @@ export default function LoginScreen() {
     });
 
     const onSubmit = async (data) => {
-        await signIn(data.email, data.password);
+        try {
+            await signIn(data.email, data.password);
+        } catch {
+            // O AuthContext já informa o erro ao usuário.
+        }
     };
 
     return (

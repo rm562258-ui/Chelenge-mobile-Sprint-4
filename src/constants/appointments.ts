@@ -8,6 +8,16 @@ export const APPOINTMENT_REMINDER_OPTIONS = [
 
 export type AppointmentReminder = (typeof APPOINTMENT_REMINDER_OPTIONS)[number]['value'];
 
+export const APPOINTMENT_TYPES = ['Consulta', 'Retorno'] as const;
+
+export const APPOINTMENT_TYPE_OPTIONS = APPOINTMENT_TYPES.map((type) => ({ value: type, label: type }));
+
+// 'Atrasada' não é escolhida no formulário: é calculada para consultas passadas que não foram concluídas.
+export const APPOINTMENT_STATUS_OPTIONS = [
+    { value: 'Agendada', label: 'A realizar' },
+    { value: 'Concluída', label: 'Já realizada (concluída)' },
+] as const;
+
 export const APPOINTMENT_REMINDER_LABELS = {
     none: 'Sem lembrete',
     at_time: 'No horário',

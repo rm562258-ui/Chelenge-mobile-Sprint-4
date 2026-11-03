@@ -23,11 +23,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Se outro toast interromper a animação, ele não pode ser apagado por este callback.
     Animated.sequence([
       Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }),
       Animated.delay(2200),
       Animated.timing(opacity, { toValue: 0, duration: 250, useNativeDriver: true }),
-    ]).start(() => setMessage(null));
+    ]).start(({ finished }) => {
+      if (finished) setMessage(null);
+    });
   }, [message, opacity]);
 
   useEffect(() => {

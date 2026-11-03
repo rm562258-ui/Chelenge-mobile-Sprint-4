@@ -2,17 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { z } from 'zod';
-
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
 import AppInput from '../components/ui/AppInput';
 import { useAuth } from '../hooks/useAuth';
 import { useAppTheme } from '../context/ThemeProvider';
-
-const forgotPasswordSchema = z.object({
-    email: z.string().trim().email('Informe um e-mail válido.'),
-});
+import { forgotPasswordFormSchema } from '../utils/formSchemas';
 
 export default function ForgotPasswordScreen() {
     const { colors } = useAppTheme();
@@ -25,14 +21,19 @@ export default function ForgotPasswordScreen() {
         handleSubmit,
         formState: { errors, isSubmitting },
     } = useForm({
-        resolver: zodResolver(forgotPasswordSchema),
+        resolver: zodResolver(forgotPasswordFormSchema),
         defaultValues: {
             email: '',
         },
     });
 
     const onSubmit = async (data) => {
-        await resetPassword(data.email);
+        try {
+            await resetPassword(data.email);
+            navigation.popTo('Login');
+        } catch {
+            // O AuthContext já informa o erro ao usuário.
+        }
     };
 
     return (
@@ -67,7 +68,7 @@ export default function ForgotPasswordScreen() {
 
                 <View style={styles.inlineRow}>
                     <Text style={styles.bottomText}>Lembrou a senha?</Text>
-                    <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
+                    <Text style={styles.linkText} onPress={() => navigation.popTo('Login')}>
                         Voltar para login
                     </Text>
                 </View>

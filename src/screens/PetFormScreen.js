@@ -1,21 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
-import * as z from 'zod';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
 import AppInput from '../components/ui/AppInput';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useCreatePet, usePet, useUpdatePet } from '../hooks/usePets';
 import { useAppTheme } from '../context/ThemeProvider';
+import { petFormSchema } from '../utils/formSchemas';
 
-const schema = z.object({
-    petNome: z.string().min(1, 'Nome obrigatório'),
-    especie: z.string().optional(),
-    raca: z.string().optional(),
-    idade: z.string().regex(/^\d*$/, 'A idade deve conter apenas números.').optional(),
-    peso: z.string().regex(/^\d*(?:[.,]\d*)?$/, 'O peso deve conter apenas números.').optional(),
-});
+const EMPTY_PET = { petNome: '', especie: '', raca: '', idade: '', peso: '' };
 
 const onlyDigits = (value = '') => value.replace(/\D/g, '');
 
@@ -25,65 +20,71 @@ const onlyNumber = (value = '') => {
     return decimalParts.length ? `${integerPart}.${decimalParts.join('')}` : integerPart;
 };
 
+const toFormValues = (pet) => ({
+    petNome: pet.petNome ?? pet.name ?? '',
+    especie: pet.especie ?? pet.type ?? '',
+    raca: pet.raca ?? pet.breed ?? '',
+    idade: String(pet.idade ?? pet.age ?? ''),
+    peso: String(pet.peso ?? pet.weight ?? ''),
+});
+
 export default function PetFormScreen({ route, navigation }) {
     const { colors } = useAppTheme();
     const styles = useMemo(() => createStyles(colors), [colors]);
     const { id } = route.params || {};
     const { data: pet } = usePet(id);
+    const values = useMemo(() => (pet ? toFormValues(pet) : undefined), [pet]);
 
-    const { control, handleSubmit, reset } = useForm({ resolver: zodResolver(schema), defaultValues: {} });
-
-    useEffect(() => {
-        if (pet) {
-            reset({
-                ...pet,
-                idade: String(pet.idade ?? pet.age ?? ''),
-                peso: String(pet.peso ?? pet.weight ?? ''),
-            });
-        }
-    }, [pet, reset]);
+    // keepDirtyValues: um refetch em segundo plano não apaga o que o usuário já digitou.
+    const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+        resolver: zodResolver(petFormSchema),
+        defaultValues: EMPTY_PET,
+        values,
+        resetOptions: { keepDirtyValues: true },
+    });
 
     const createMutation = useCreatePet();
     const updateMutation = useUpdatePet();
 
-    const onSubmit = async (values) => {
+    const onSubmit = async (formValues) => {
         try {
             if (id) {
-                await updateMutation.mutateAsync({ id, payload: values });
+                await updateMutation.mutateAsync({ id, payload: formValues });
             } else {
-                await createMutation.mutateAsync(values);
+                await createMutation.mutateAsync(formValues);
             }
-            navigation.navigate('Pets');
+            navigation.popTo('Pets');
         } catch {
+            Alert.alert('Erro', 'Não foi possível salvar o pet. Tente novamente.');
         }
     };
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
             <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
                 <ProfileCard title={id ? 'Editar Pet' : 'Novo Pet'} icon="📝">
                     <Controller control={control} name="petNome" render={({ field }) => (
-                        <AppInput label="Nome do pet" value={field.value} onChangeText={field.onChange} placeholder="Nome" />
+                        <AppInput label="Nome do pet" value={field.value} onChangeText={field.onChange} placeholder="Nome" error={errors.petNome?.message} />
                     )} />
 
                     <Controller control={control} name="especie" render={({ field }) => (
-                        <AppInput label="Espécie" value={field.value} onChangeText={field.onChange} placeholder="Cão / Gato" />
+                        <AppInput label="Espécie" value={field.value} onChangeText={field.onChange} placeholder="Cão / Gato" error={errors.especie?.message} />
                     )} />
 
                     <Controller control={control} name="raca" render={({ field }) => (
-                        <AppInput label="Raça" value={field.value} onChangeText={field.onChange} placeholder="SRD / Labrador" />
+                        <AppInput label="Raça" value={field.value} onChangeText={field.onChange} placeholder="SRD / Labrador" error={errors.raca?.message} />
                     )} />
 
                     <Controller control={control} name="idade" render={({ field }) => (
-                        <AppInput label="Idade" value={String(field.value ?? '')} onChangeText={(value) => field.onChange(onlyDigits(value))} placeholder="Idade em anos" keyboardType="numeric" />
+                        <AppInput label="Idade" value={String(field.value ?? '')} onChangeText={(value) => field.onChange(onlyDigits(value))} placeholder="Idade em anos" keyboardType="numeric" error={errors.idade?.message} />
                     )} />
 
                     <Controller control={control} name="peso" render={({ field }) => (
-                        <AppInput label="Peso (kg)" value={String(field.value ?? '')} onChangeText={(value) => field.onChange(onlyNumber(value))} placeholder="Peso em kg" keyboardType="decimal-pad" />
+                        <AppInput label="Peso (kg)" value={String(field.value ?? '')} onChangeText={(value) => field.onChange(onlyNumber(value))} placeholder="Peso em kg" keyboardType="decimal-pad" error={errors.peso?.message} />
                     )} />
 
                     <View style={{ height: 12 }} />
-                    <AppButton title={id ? 'Salvar alterações' : 'Criar pet'} onPress={handleSubmit(onSubmit)} />
+                    <AppButton title={id ? 'Salvar alterações' : 'Criar pet'} onPress={handleSubmit(onSubmit)} loading={isSubmitting} disabled={isSubmitting} />
                 </ProfileCard>
             </ScrollView>
         </SafeAreaView>

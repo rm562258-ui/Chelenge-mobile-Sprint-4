@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
@@ -46,7 +47,7 @@ export default function ConfiguracoesScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <HeaderSection title="Configurações" subtitle="Ajuste as preferências do aplicativo" />
         <ProfileCard title="Preferências" icon="⚙️">

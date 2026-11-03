@@ -24,6 +24,7 @@ type RootStackParamList = {
     MedicationDetails: { id: string };
     Alertas: undefined;
     Equipe: undefined;
+    Sobre: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

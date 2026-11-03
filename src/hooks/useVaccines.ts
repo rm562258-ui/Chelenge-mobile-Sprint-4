@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import vaccineService, { type VaccinePayload } from '../services/vaccineService';
+import { vaccineService, type VaccinePayload } from '../services/vaccineService';
 import { useApiQuery } from './useApiQuery';
 import {
     cancelVaccineReminder,

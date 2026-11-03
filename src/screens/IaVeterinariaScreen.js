@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useAppTheme } from '../context/ThemeProvider';
@@ -33,7 +34,7 @@ export default function IaVeterinariaScreen() {
   const [openQuestion, setOpenQuestion] = useState(null);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <HeaderSection title="Perguntas frequentes" subtitle="Encontre respostas rápidas sobre os cuidados do seu pet" />
 

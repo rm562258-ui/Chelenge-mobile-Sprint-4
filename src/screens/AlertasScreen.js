@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { FlatList, RefreshControl, SafeAreaView, StyleSheet, Text } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
 import { EmptyState, ErrorState } from '../components/ui/ListState';
@@ -10,16 +11,16 @@ import { useAppTheme } from '../context/ThemeProvider';
 export default function AlertasScreen() {
   const { colors } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { alertItems, data, isError, loading, refreshAlerts, refetch } = useAppointmentAlerts();
+  const { alertItems, data, isError, loading, refreshing, refreshAlerts, refetch } = useAppointmentAlerts();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <FlatList
         data={alertItems}
         contentContainerStyle={styles.container}
-        refreshControl={<RefreshControl refreshing={loading && !!data} onRefresh={refreshAlerts} />}
-        ListHeaderComponent={<HeaderSection title="Histórico de Notificações" subtitle="Acompanhe alertas gerados pelo cuidado do seu pet" />}
-        ListEmptyComponent={isError ? <ErrorState title="Erro ao carregar notificações." onRetry={refetch} /> : !loading ? <EmptyState title="Nenhuma notificação encontrada." description="Novos alertas aparecerão aqui." /> : null}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAlerts} />}
+        ListHeaderComponent={<HeaderSection title="Alertas e recomendações" subtitle="Consultas dos próximos 7 dias e avisos gerados pelos cuidados do seu pet" />}
+        ListEmptyComponent={isError ? <ErrorState title="Erro ao carregar alertas." onRetry={refetch} /> : !loading ? <EmptyState title="Nenhum alerta no momento." description="Novos alertas aparecerão aqui." /> : null}
         ListFooterComponent={loading && !data ? <LoadingSkeleton rows={3} /> : null}
         keyExtractor={(item, index) => item.id?.toString() || `${item.createdAt || 'notification'}-${index}`}
         renderItem={({ item }) => (

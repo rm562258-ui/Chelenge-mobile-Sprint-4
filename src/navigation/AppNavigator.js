@@ -4,6 +4,7 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { useAuth } from '../hooks/useAuth';
 import { useAppTheme } from '../context/ThemeProvider';
+import { useClearCacheOnLogout } from '../hooks/useClearCacheOnLogout';
 import { useNotificationListeners } from '../hooks/useNotificationListeners';
 import { warmUpApi } from '../api/warmUp';
 import AgendaCuidadosScreen from '../screens/AgendaCuidadosScreen';
@@ -50,6 +51,7 @@ function AuthStack() {
 
 function AppStack() {
   useNotificationListeners();
+  useClearCacheOnLogout();
   useEffect(() => {
     warmUpApi();
   }, []);
@@ -91,11 +93,12 @@ function AppStack() {
 }
 
 export default function AppNavigator() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, initializing } = useAuth();
   const { colors } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  if (loading) {
+  // Só bloqueia a navegação na restauração da sessão; login e cadastro mantêm o formulário montado.
+  if (initializing) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={styles.loadingIndicator.color} />

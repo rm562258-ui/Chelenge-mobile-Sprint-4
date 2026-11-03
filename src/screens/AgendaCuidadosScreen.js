@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { FlatList, RefreshControl, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
@@ -15,19 +16,20 @@ import { APPOINTMENT_REMINDER_LABELS } from '../constants/appointments';
 export default function AgendaCuidadosScreen({ navigation }) {
   const { colors } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { data, isLoading, isError, refetch } = useAppointments();
+  const { data, isLoading, isError, isRefetching, refetch } = useAppointments();
   const { items, query, setQuery, status, toggleStatus } = useFilteredAppointments(Array.isArray(data) ? data : []);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <FlatList
         data={items}
-        refreshControl={<RefreshControl refreshing={isLoading && !!data} onRefresh={refetch} />}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
         ListEmptyComponent={isError ? <ErrorState title="Erro ao carregar agenda." onRetry={refetch} /> : !isLoading ? <EmptyState title="Nenhuma consulta encontrada." description="Agende uma consulta ou ajuste sua busca." /> : null}
         ListFooterComponent={isLoading && !data ? <LoadingSkeleton rows={3} /> : null}
         keyExtractor={(item, index) => item.id?.toString() || `${item.date || 'consulta'}-${index}`}
         contentContainerStyle={styles.container}
-        ListHeaderComponent={() => (
+        // Elemento (e não função): uma função nova a cada render remontaria a busca e fecharia o teclado.
+        ListHeaderComponent={(
           <View>
             <HeaderSection title="Agenda de Cuidados" subtitle="Próximos compromissos e lembretes" />
             <View style={{ paddingHorizontal: 16, marginTop: 8 }}>

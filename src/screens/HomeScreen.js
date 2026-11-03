@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
@@ -25,7 +26,7 @@ export default function HomeScreen({ navigation }) {
   const refreshing = refreshQueries.some(({ query }) => query.isFetching);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <ScrollView
         contentContainerStyle={styles.container}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={summary.refetchAll} />}
@@ -52,13 +53,19 @@ export default function HomeScreen({ navigation }) {
           {summary.appointmentsQuery.isLoading ? <LoadingSkeleton rows={1} /> : summary.appointmentsQuery.isError ? (
             <ErrorState title="Não foi possível carregar as consultas." onRetry={summary.appointmentsQuery.refetch} />
           ) : summary.nextAppointment ? (
-            <>
-              <Text style={{ color: colors.text, fontWeight: '600' }}>{summary.nextAppointment.type || 'Consulta'} • {summary.nextAppointment.petName || 'Pet'}</Text>
-              <Text style={{ color: colors.textMuted, marginTop: 6 }}>{formatDisplayDate(summary.nextAppointment.date)} às {summary.nextAppointment.time}</Text>
-            </>
+            <TouchableOpacity onPress={() => navigation.navigate('AppointmentDetails', { id: summary.nextAppointment.id })} accessibilityRole="button">
+              <Text style={styles.itemTitle}>{summary.nextAppointment.type || 'Consulta'} • {summary.nextAppointment.petName || 'Pet'}</Text>
+              <Text style={styles.itemDetail}>
+                {formatDisplayDate(summary.nextAppointment.date)}{summary.nextAppointment.time ? ` às ${summary.nextAppointment.time}` : ''}
+              </Text>
+              {summary.nextAppointment.isOverdue ? (
+                <Text style={styles.overdue}>O horário já passou: toque para marcar como concluída.</Text>
+              ) : null}
+              <Text style={styles.link}>Ver detalhes ›</Text>
+            </TouchableOpacity>
           ) : (
             <>
-              <EmptyState title="Nenhuma consulta futura agendada." description="Agende uma consulta para acompanhar o próximo cuidado." />
+              <EmptyState title="Nenhuma consulta pendente." description="Agende uma consulta para acompanhar o próximo cuidado." />
               <AppButton title="Agendar consulta" onPress={() => navigation.navigate('AppointmentForm')} />
             </>
           )}
@@ -68,13 +75,21 @@ export default function HomeScreen({ navigation }) {
           {summary.vaccinesQuery.isLoading ? <LoadingSkeleton rows={1} /> : summary.vaccinesQuery.isError ? (
             <ErrorState title="Não foi possível carregar as vacinas." onRetry={summary.vaccinesQuery.refetch} />
           ) : summary.nextVaccine ? (
-            <>
-              <Text style={{ color: colors.text, fontWeight: '600' }}>{summary.nextVaccine.name || 'Vacina'}</Text>
-              <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data: {formatDisplayDate(summary.nextVaccine.nextDoseDate !== undefined ? summary.nextVaccine.nextDoseDate : summary.nextVaccine.boosterDate)}</Text>
-            </>
+            <TouchableOpacity onPress={() => navigation.navigate('VaccineDetails', { id: summary.nextVaccine.id })} accessibilityRole="button">
+              <Text style={styles.itemTitle}>
+                {summary.nextVaccine.name || 'Vacina'}{summary.nextVaccine.petName ? ` • ${summary.nextVaccine.petName}` : ''}
+              </Text>
+              <Text style={styles.itemDetail}>
+                {summary.nextVaccine.isOverdue ? 'Reforço vencido desde' : 'Reforço em'} {formatDisplayDate(summary.nextVaccine.dueDate)}
+              </Text>
+              {summary.nextVaccine.isOverdue ? (
+                <Text style={styles.overdue}>Agende o reforço com o veterinário.</Text>
+              ) : null}
+              <Text style={styles.link}>Ver detalhes ›</Text>
+            </TouchableOpacity>
           ) : (
             <>
-              <EmptyState title="Nenhum reforço futuro registrado." description="Registre a data do próximo reforço na carteira vacinal." />
+              <EmptyState title="Nenhum reforço registrado." description="Registre a data do próximo reforço na carteira vacinal." />
               <AppButton title="Registrar vacina" onPress={() => navigation.navigate('VaccineForm')} />
             </>
           )}
@@ -83,20 +98,41 @@ export default function HomeScreen({ navigation }) {
         <ProfileCard title="Medicamentos em andamento" icon="💊">
           {summary.medicationsQuery.isLoading ? <LoadingSkeleton rows={1} /> : summary.medicationsQuery.isError ? (
             <ErrorState title="Não foi possível carregar os medicamentos." onRetry={summary.medicationsQuery.refetch} />
-          ) : summary.medicationsInProgress === 0 ? (
+          ) : summary.nextMedication ? (
+            <TouchableOpacity onPress={() => navigation.navigate('MedicationDetails', { id: summary.nextMedication.id })} accessibilityRole="button">
+              <Text style={styles.itemTitle}>
+                {summary.nextMedication.name || 'Medicamento'}{summary.nextMedication.petName ? ` • ${summary.nextMedication.petName}` : ''}
+              </Text>
+              {summary.nextMedication.dosage || summary.nextMedication.frequency ? (
+                <Text style={styles.itemDetail}>
+                  {[summary.nextMedication.dosage, summary.nextMedication.frequency].filter(Boolean).join(' • ')}
+                </Text>
+              ) : null}
+              <Text style={styles.itemDetail}>
+                {summary.nextMedication.startsLater
+                  ? `Começa em ${formatDisplayDate(summary.nextMedication.startDate)}`
+                  : summary.nextMedication.endDate ? `Até ${formatDisplayDate(summary.nextMedication.endDate)}` : 'Uso contínuo'}
+              </Text>
+              {summary.medicationsInProgress > 1 ? (
+                <Text style={styles.itemDetail}>+{summary.medicationsInProgress - 1} em andamento</Text>
+              ) : null}
+              <Text style={styles.link}>Ver detalhes ›</Text>
+            </TouchableOpacity>
+          ) : (
             <>
               <EmptyState title="Nenhum medicamento em andamento." description="Cadastre um tratamento para acompanhar seu pet." />
               <AppButton title="Registrar medicamento" onPress={() => navigation.navigate('MedicationForm')} />
             </>
-          ) : (
-            <Text style={{ color: colors.text }}>{summary.medicationsInProgress} {summary.medicationsInProgress === 1 ? 'medicamento em andamento' : 'medicamentos em andamento'}</Text>
           )}
         </ProfileCard>
 
         <View style={{ height: 8 }} />
         <AppButton title="Cadastrar Pet" onPress={() => navigation.navigate('CadastroPet')} style={{ marginBottom: 8 }} />
+        <AppButton title="Meus Pets" onPress={() => navigation.navigate('Pets')} variant="outline" style={{ marginBottom: 8 }} />
         <AppButton title="Ver Perfil do Pet" onPress={() => navigation.navigate('PerfilPet')} variant="outline" style={{ marginBottom: 8 }} />
         <AppButton title="Agenda de Cuidados" onPress={() => navigation.navigate('AgendaCuidados')} variant="outline" style={{ marginBottom: 8 }} />
+        <AppButton title="Carteira Vacinal" onPress={() => navigation.navigate('Vaccines')} variant="outline" style={{ marginBottom: 8 }} />
+        <AppButton title="Medicamentos" onPress={() => navigation.navigate('Medications')} variant="outline" style={{ marginBottom: 8 }} />
         <AppButton title="FAQ" onPress={() => navigation.navigate('IaVeterinaria')} variant="outline" style={{ marginBottom: 8 }} />
         <AppButton title="Integrantes" onPress={() => navigation.navigate('Equipe')} variant="outline" style={{ marginBottom: 8 }} />
         <AppButton title="Alertas e Recomendações" onPress={() => navigation.navigate('Alertas')} variant="outline" style={{ marginBottom: 8 }} />
@@ -111,4 +147,8 @@ export default function HomeScreen({ navigation }) {
 const createStyles = (colors) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   container: { padding: 16 },
+  itemTitle: { color: colors.text, fontWeight: '600' },
+  itemDetail: { color: colors.textMuted, marginTop: 6 },
+  overdue: { color: colors.warning, fontWeight: '600', marginTop: 6 },
+  link: { color: colors.primary, fontWeight: '700', marginTop: 8 },
 });

@@ -1,34 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { getOfflinePets } from '../services/offlinePetStorage';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { petService, type PetPayload } from '../services/petService';
+import { cancelVaccineReminder } from '../services/reminderService';
+import { showToast } from '../utils/toast';
 import { useApiQuery } from './useApiQuery';
 
 const PETS_QUERY_KEY = ['pets'];
 
+// O fallback offline fica no serviço: sem conexão, a lista vem do cache do dispositivo.
 export function usePets() {
-    const queryKey = PETS_QUERY_KEY;
-
-    const qc = useQueryClient();
-    useEffect(() => {
-        void getOfflinePets().then((localPets) => {
-            if (localPets.length > 0) qc.setQueryData(PETS_QUERY_KEY, localPets);
-        });
-    }, [qc]);
-
-    const list = useQuery<any[], Error>({
-        queryKey,
-        queryFn: async () => {
-            const localPets = await getOfflinePets();
-            if (localPets.length > 0) qc.setQueryData(queryKey, localPets);
-            const result = await petService.list();
-            return result.data;
-        },
-    });
-
-    return {
-        ...list,
-    };
+    return useApiQuery<any[], Error>(PETS_QUERY_KEY, () => petService.list().then((r) => r.data));
 }
 
 export function usePet(id: string | undefined) {
@@ -60,9 +40,22 @@ export function useDeletePet() {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (id: string) => petService.delete(id).then((r) => r.data),
-        onSuccess: (_data, id) => {
+        onSuccess: async (_data, id) => {
             qc.setQueryData<any[]>(PETS_QUERY_KEY, (current = []) => current.filter((pet) => String(pet.id) !== String(id)));
-            void qc.invalidateQueries({ queryKey: PETS_QUERY_KEY });
+            // A API exclui junto as vacinas do pet; os lembretes delas também precisam sair do aparelho.
+            const petVaccines = (qc.getQueryData<any[]>(['vaccines']) ?? [])
+                .filter((vaccine) => String(vaccine.petId) === String(id));
+            try {
+                for (const vaccine of petVaccines) await cancelVaccineReminder(vaccine.id);
+            } catch {
+                showToast('Pet excluído, mas não foi possível cancelar todos os lembretes de vacina.', 'error');
+            }
+            await Promise.all([
+                qc.invalidateQueries({ queryKey: PETS_QUERY_KEY }),
+                qc.invalidateQueries({ queryKey: ['vaccines'] }),
+                qc.invalidateQueries({ queryKey: ['medications'] }),
+                qc.invalidateQueries({ queryKey: ['notifications'] }),
+            ]);
         },
     });
 }

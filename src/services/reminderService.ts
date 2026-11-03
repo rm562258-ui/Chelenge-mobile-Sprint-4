@@ -83,6 +83,10 @@ export async function confirmAppointmentCreated(
     remindersEnabled: boolean,
 ): Promise<void> {
     if (!remindersEnabled || appointment.id == null || !appointment.date || !appointment.time) return;
+    // Consulta registrada no passado ou já concluída não gera o aviso de "Consulta agendada".
+    const scheduledAt = combineDateAndTime(appointment.date, appointment.time);
+    if (appointment.status === 'Concluída' || !scheduledAt || scheduledAt.getTime() <= Date.now()) return;
+
     const text = appointmentNotificationText(appointment);
     await sendNow({
         title: text.confirmationTitle,
@@ -98,7 +102,8 @@ export async function scheduleAppointmentReminders(
     if (appointment.id == null) return;
     const key = appointmentKey(appointment.id);
     await cancelByKey(key);
-    if (!remindersEnabled || appointment.status === 'Concluída' || appointment.status === 'Atrasada') return;
+    // 'Atrasada' pode estar desatualizado após remarcar; datas passadas já são ignoradas por scheduleAt.
+    if (!remindersEnabled || appointment.status === 'Concluída') return;
 
     const reminderDate = calculateAppointmentReminderDate(appointment.date, appointment.time, appointment.reminder);
     if (!reminderDate) return;
@@ -165,10 +170,14 @@ export async function rescheduleAll(
     if (!remindersEnabled) return;
     if (!(await ensurePermission())) return;
 
-    await Promise.all([
-        ...appointments.map((appointment) => scheduleAppointmentReminders(appointment, true)),
-        ...vaccines.map((vaccine) => scheduleVaccineReminder(vaccine, true)),
-    ]);
+    // Em sequência: agendamentos paralelos sobrescreveriam o mapa de notificações no AsyncStorage
+    // e deixariam lembretes impossíveis de cancelar.
+    for (const appointment of appointments) {
+        await scheduleAppointmentReminders(appointment, true);
+    }
+    for (const vaccine of vaccines) {
+        await scheduleVaccineReminder(vaccine, true);
+    }
 }
 
 export function cancelAllReminders(): Promise<void> {

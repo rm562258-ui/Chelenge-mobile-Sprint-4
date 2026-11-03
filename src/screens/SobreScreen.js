@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import DevCard from '../components/ui/DevCard';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
@@ -18,7 +19,7 @@ export default function SobreScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <HeaderSection title="Sobre o App" subtitle="Informações desta versão do ClyvoCare Pet" />
 

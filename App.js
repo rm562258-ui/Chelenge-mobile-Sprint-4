@@ -1,5 +1,5 @@
 import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
-import { AppRegistry } from 'react-native';
+import { AppRegistry, LogBox } from 'react-native';
 import 'react-native-gesture-handler';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
@@ -14,6 +14,13 @@ import OfflineBanner from './src/components/ui/OfflineBanner';
 import { configureNotifications } from './src/services/localNotificationService';
 import { flushPendingNotificationNavigation, navigationRef } from './src/navigation/navigationRef';
 import { showToast } from './src/utils/toast';
+
+// Só no Expo Go (desenvolvimento) o expo-notifications avisa que push remoto não existe ali.
+// O app usa apenas notificações locais, que funcionam no Expo Go; os avisos não indicam erro.
+LogBox.ignoreLogs([
+  'expo-notifications: Android Push notifications (remote notifications)',
+  '`expo-notifications` functionality is not fully supported in Expo Go',
+]);
 
 function AppContent() {
   const { colors, isDark } = useAppTheme();

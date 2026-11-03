@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { Alert, FlatList, RefreshControl, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
 import ProfileCard from '../components/ui/ProfileCard';
@@ -47,7 +48,7 @@ export default function HistoricoNotificacoesScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <FlatList
         data={notifications}
         keyExtractor={(item, index) => item.id?.toString() || `${item.createdAt || 'notification'}-${index}`}

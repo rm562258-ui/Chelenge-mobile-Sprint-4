@@ -2,23 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { z } from 'zod';
-
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
 import AppInput from '../components/ui/AppInput';
 import { useAuth } from '../hooks/useAuth';
 import { useAppTheme } from '../context/ThemeProvider';
-
-const registerSchema = z.object({
-    name: z.string().trim().min(2, 'Informe seu nome completo.'),
-    email: z.string().trim().email('Informe um e-mail válido.'),
-    password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres.'),
-    confirmPassword: z.string().min(6, 'Confirme sua senha.'),
-}).refine((data) => data.password === data.confirmPassword, {
-    path: ['confirmPassword'],
-    message: 'As senhas não coincidem.',
-});
+import { registerFormSchema } from '../utils/formSchemas';
 
 export default function RegisterScreen() {
     const { colors } = useAppTheme();
@@ -31,7 +21,7 @@ export default function RegisterScreen() {
         handleSubmit,
         formState: { errors, isSubmitting },
     } = useForm({
-        resolver: zodResolver(registerSchema),
+        resolver: zodResolver(registerFormSchema),
         defaultValues: {
             name: '',
             email: '',
@@ -41,7 +31,11 @@ export default function RegisterScreen() {
     });
 
     const onSubmit = async (data) => {
-        await signUp(data.name, data.email, data.password);
+        try {
+            await signUp(data.name, data.email, data.password);
+        } catch {
+            // O AuthContext já informa o erro ao usuário.
+        }
     };
 
     return (
@@ -123,7 +117,7 @@ export default function RegisterScreen() {
 
                 <View style={styles.inlineRow}>
                     <Text style={styles.bottomText}>Já possui conta?</Text>
-                    <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
+                    <Text style={styles.linkText} onPress={() => navigation.popTo('Login')}>
                         Entrar
                     </Text>
                 </View>

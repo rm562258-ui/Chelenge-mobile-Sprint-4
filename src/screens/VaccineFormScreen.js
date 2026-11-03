@@ -1,22 +1,29 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
-import * as z from 'zod';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
 import AppInput from '../components/ui/AppInput';
+import PetSelector from '../components/ui/PetSelector';
 import ProfileCard from '../components/ui/ProfileCard';
+import { usePetOptions } from '../hooks/usePetOptions';
 import { useCreateVaccine, useUpdateVaccine, useVaccines } from '../hooks/useVaccines';
 import { useAppTheme } from '../context/ThemeProvider';
-import { parseAppDate } from '../utils/date';
+import { formatDisplayDate, maskDateInput } from '../utils/date';
+import { vaccineFormSchema } from '../utils/formSchemas';
 
-const schema = z.object({
-    name: z.string().min(1),
-    petId: z.string().min(1),
-    date: z.string().min(1),
-    dose: z.string().optional(),
-    nextDoseDate: z.string().optional().refine((value) => !value || !!parseAppDate(value), 'Informe uma data válida no formato DD/MM/AA ou AAAA-MM-DD'),
-    notes: z.string().optional(),
+const EMPTY_VACCINE = { name: '', petId: '', date: '', dose: '', nextDoseDate: '', notes: '' };
+
+const toFormDate = (value) => (value ? maskDateInput(formatDisplayDate(value)) : '');
+
+const toFormValues = (vaccine) => ({
+    name: vaccine.name ?? '',
+    petId: vaccine.petId != null ? String(vaccine.petId) : '',
+    date: toFormDate(vaccine.date),
+    dose: vaccine.dose ?? '',
+    nextDoseDate: toFormDate(vaccine.nextDoseDate || vaccine.boosterDate),
+    notes: vaccine.notes ?? '',
 });
 
 export default function VaccineFormScreen({ route, navigation }) {
@@ -24,43 +31,46 @@ export default function VaccineFormScreen({ route, navigation }) {
     const styles = useMemo(() => createStyles(colors), [colors]);
     const { id } = route.params || {};
     const { data } = useVaccines();
+    const { options: petOptions, isLoading: isPetsLoading } = usePetOptions();
+    const vaccine = id && Array.isArray(data) ? data.find((item) => String(item.id) === String(id)) : null;
+    const values = useMemo(() => (vaccine ? toFormValues(vaccine) : undefined), [vaccine]);
 
-    const { control, handleSubmit, reset, formState: { errors } } = useForm({ resolver: zodResolver(schema), defaultValues: {} });
-
-    useEffect(() => {
-        if (id && data) {
-            const v = data.find((x) => x.id === id);
-            if (v) reset({ ...v, nextDoseDate: v.nextDoseDate || v.boosterDate || '' });
-        }
-    }, [id, data, reset]);
+    // keepDirtyValues: um refetch em segundo plano não apaga o que o usuário já digitou.
+    const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+        resolver: zodResolver(vaccineFormSchema),
+        defaultValues: EMPTY_VACCINE,
+        values,
+        resetOptions: { keepDirtyValues: true },
+    });
 
     const createMutation = useCreateVaccine();
     const updateMutation = useUpdateVaccine();
 
-    const onSubmit = async (values) => {
+    const onSubmit = async (formValues) => {
         try {
             if (id) {
-                await updateMutation.mutateAsync({ id, payload: values });
+                await updateMutation.mutateAsync({ id, payload: formValues });
             } else {
-                await createMutation.mutateAsync(values);
+                await createMutation.mutateAsync(formValues);
             }
-            navigation.navigate('Vaccines');
-        } catch { }
+            navigation.popTo('Vaccines');
+        } catch {
+            Alert.alert('Erro', 'Não foi possível salvar a vacina. Tente novamente.');
+        }
     };
 
-
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
             <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
                 <ProfileCard title={id ? 'Editar Vacina' : 'Nova Vacina'} icon="💉">
-                    <Controller control={control} name="name" render={({ field }) => <AppInput label="Vacina" value={field.value} onChangeText={field.onChange} />} />
-                    <Controller control={control} name="petId" render={({ field }) => <AppInput label="Pet ID" value={field.value} onChangeText={field.onChange} />} />
-                    <Controller control={control} name="date" render={({ field }) => <AppInput label="Data" value={field.value} onChangeText={field.onChange} placeholder="YYYY-MM-DD" />} />
-                    <Controller control={control} name="dose" render={({ field }) => <AppInput label="Dose" value={field.value} onChangeText={field.onChange} placeholder="1ª dose / reforço" />} />
-                    <Controller control={control} name="nextDoseDate" render={({ field }) => <AppInput label="Data do próximo reforço" value={field.value} onChangeText={field.onChange} placeholder="AAAA-MM-DD ou DD/MM/AA" error={errors.nextDoseDate?.message} />} />
-                    <Controller control={control} name="notes" render={({ field }) => <AppInput label="Notas" value={field.value} onChangeText={field.onChange} />} />
+                    <Controller control={control} name="name" render={({ field }) => <AppInput label="Vacina" value={field.value} onChangeText={field.onChange} placeholder="V10 / Antirrábica" error={errors.name?.message} />} />
+                    <Controller control={control} name="petId" render={({ field }) => <PetSelector options={petOptions} value={field.value} onChange={field.onChange} loading={isPetsLoading} error={errors.petId?.message} />} />
+                    <Controller control={control} name="date" render={({ field }) => <AppInput label="Data da aplicação" value={field.value} onChangeText={(value) => field.onChange(maskDateInput(value))} placeholder="DD/MM/AA" keyboardType="numeric" error={errors.date?.message} />} />
+                    <Controller control={control} name="dose" render={({ field }) => <AppInput label="Dose" value={field.value} onChangeText={field.onChange} placeholder="1ª dose / reforço" error={errors.dose?.message} />} />
+                    <Controller control={control} name="nextDoseDate" render={({ field }) => <AppInput label="Data do próximo reforço" value={field.value} onChangeText={(value) => field.onChange(maskDateInput(value))} placeholder="DD/MM/AA" keyboardType="numeric" error={errors.nextDoseDate?.message} />} />
+                    <Controller control={control} name="notes" render={({ field }) => <AppInput label="Notas" value={field.value} onChangeText={field.onChange} placeholder="Observações" />} />
                     <View style={{ height: 12 }} />
-                    <AppButton title={id ? 'Salvar' : 'Registrar'} onPress={handleSubmit(onSubmit)} />
+                    <AppButton title={id ? 'Salvar' : 'Registrar'} onPress={handleSubmit(onSubmit)} loading={isSubmitting} disabled={isSubmitting} />
                 </ProfileCard>
             </ScrollView>
         </SafeAreaView>

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import medicationService, { type MedicationPayload } from '../services/medicationService';
+import { medicationService, type MedicationPayload } from '../services/medicationService';
 import { useApiQuery } from './useApiQuery';
 
 export function useMedications() {

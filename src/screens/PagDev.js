@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
-import { Animated, FlatList, SafeAreaView, StyleSheet } from "react-native";
+import { useEffect, useMemo, useState } from 'react';
+import { Animated, FlatList, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import DevCard from '../components/ui/DevCard';
 import HeaderSection from '../components/ui/HeaderSection';
 import { TEAM_MEMBERS } from '../constants/team';
@@ -8,10 +9,14 @@ import { useAppTheme } from '../context/ThemeProvider';
 export default function PagDev() {
   const { colors } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const anim = new Animated.Value(0);
-  Animated.timing(anim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
+  const [anim] = useState(() => new Animated.Value(0));
+
+  useEffect(() => {
+    Animated.timing(anim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
+  }, [anim]);
+
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <FlatList
         contentContainerStyle={styles.container}
         data={TEAM_MEMBERS}

@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { AndroidImportance, IosAuthorizationStatus } from 'expo-notifications';
 import { Platform } from 'react-native';
+import { lightColors } from '../theme/colors';
 import { showToast } from '../utils/toast';
 import notificationService, { type NotificationPayload } from './notificationService';
 
@@ -63,6 +64,22 @@ const recordNotificationHistory = async (
     }
 };
 
+// Lembrete cancelado não pode continuar no histórico como "Agendada".
+const removeUpcomingHistory = async (match?: { type: string; refId: string }) => {
+    try {
+        const { data } = await notificationService.getAll();
+        const now = Date.now();
+        const upcoming = (Array.isArray(data) ? data : []).filter((record) =>
+            new Date(record.scheduledFor).getTime() > now
+            && (!match || (record.type === match.type && String(record.refId) === match.refId)));
+        for (const record of upcoming) {
+            await notificationService.delete(String(record.id));
+        }
+    } catch (error) {
+        console.warn('[NOTIFICATIONS] Não foi possível atualizar o histórico de lembretes.', error);
+    }
+};
+
 export function configureNotifications() {
     if (configurationPromise) return configurationPromise;
 
@@ -80,7 +97,7 @@ export function configureNotifications() {
             name: 'Lembretes de cuidado',
             importance: AndroidImportance.HIGH,
             vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#15803D',
+            lightColor: lightColors.primary,
         });
         return configurationPromise;
     }
@@ -185,6 +202,10 @@ export async function cancelByKey(key: string): Promise<void> {
     if (!(key in map)) return;
     delete map[key];
     await writeNotificationMap(map);
+
+    // A chave segue o formato "<tipo>:<id>" (ex.: "appointment:123").
+    const separator = key.indexOf(':');
+    await removeUpcomingHistory({ type: key.slice(0, separator), refId: key.slice(separator + 1) });
 }
 
 export async function cancelAll(): Promise<void> {
@@ -193,4 +214,5 @@ export async function cancelAll(): Promise<void> {
         Notifications.dismissAllNotificationsAsync(),
     ]);
     await AsyncStorage.removeItem(NOTIFICATION_MAP_KEY);
+    await removeUpcomingHistory();
 }

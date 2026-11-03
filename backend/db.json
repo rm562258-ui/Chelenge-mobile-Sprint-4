@@ -34,6 +34,20 @@
       "contact": "",
       "createdAt": "2026-10-21T12:00:00.000Z",
       "updatedAt": "2026-10-21T12:00:00.000Z"
+    },
+    {
+      "createdAt": "2026-11-03T02:03:12.307Z",
+      "petNome": "teste",
+      "especie": "gato",
+      "raca": "srd",
+      "idade": "12",
+      "peso": "7",
+      "updatedAt": "2026-11-03T02:03:12.307Z",
+      "name": "teste",
+      "type": "gato",
+      "breed": "srd",
+      "userId": "Yp4DeXFtJcPXpZyynCJQf0t3Gnf2",
+      "id": "PrHUQ0wHLQw"
     }
   ],
   "appointments": [
@@ -60,6 +74,36 @@
       "notes": "Revisão do acompanhamento veterinário.",
       "veterinarian": "Dr. Rafael Lima",
       "clinic": "Clínica Clyvo Vet"
+    },
+    {
+      "createdAt": "2026-11-03T02:14:24.314Z",
+      "petName": "teste",
+      "date": "02/11/26",
+      "time": "23:15",
+      "reminder": "at_time",
+      "type": "Consulta",
+      "status": "Atrasada",
+      "clinic": "",
+      "veterinarian": "",
+      "notes": "",
+      "updatedAt": "2026-11-03T02:14:24.314Z",
+      "userId": "Yp4DeXFtJcPXpZyynCJQf0t3Gnf2",
+      "id": "aLm7KYo0i0Y"
+    },
+    {
+      "createdAt": "2026-11-03T02:19:01.577Z",
+      "petName": "teste",
+      "date": "03/11/26",
+      "time": "00:02",
+      "reminder": "30min",
+      "type": "Consulta",
+      "status": "Agendada",
+      "clinic": "",
+      "veterinarian": "",
+      "notes": "",
+      "updatedAt": "2026-11-03T02:19:01.577Z",
+      "userId": "Yp4DeXFtJcPXpZyynCJQf0t3Gnf2",
+      "id": "zkIdOYG_spQ"
     }
   ],
   "vaccines": [
@@ -97,5 +141,6 @@
   ],
   "notifications": [],
   "aiHistory": [],
-  "alerts": []
+  "alerts": [],
+  "$schema": "./node_modules/json-server/schema.json"
 }

@@ -1,6 +1,6 @@
 import { useAppointments } from './useAppointments';
 import { useNotifications } from './useNotifications';
-import { parseAppDate } from '../utils/date';
+import { formatDisplayDate, parseAppDate } from '../utils/date';
 
 type AlertItem = {
     id?: string | number;
@@ -12,15 +12,17 @@ type AlertItem = {
 type AppointmentForAlert = {
     id?: string | number;
     date?: string;
+    time?: string;
     petName?: string;
     status?: string;
 };
 
 export function useAppointmentAlerts() {
-    const { data, isLoading, isError, refetch } = useNotifications();
+    const { data, isLoading, isError, isRefetching, refetch } = useNotifications();
     const {
         data: appointments = [],
         isLoading: isAppointmentsLoading,
+        isRefetching: isAppointmentsRefetching,
         refetch: refetchAppointments,
     } = useAppointments();
 
@@ -40,7 +42,7 @@ export function useAppointmentAlerts() {
         .map(({ appointment }) => ({
             id: `appointment-alert-${appointment.id}`,
             title: 'Consulta programada',
-            message: `${appointment.petName || 'Pet'} tem uma consulta marcada para ${appointment.date}.`,
+            message: `${appointment.petName || 'Pet'} tem uma consulta marcada para ${formatDisplayDate(appointment.date)}${appointment.time ? ` às ${appointment.time}` : ''}.`,
         }));
 
     const refreshAlerts = async () => {
@@ -52,6 +54,7 @@ export function useAppointmentAlerts() {
         data,
         isError,
         loading: isLoading || isAppointmentsLoading,
+        refreshing: isRefetching || isAppointmentsRefetching,
         refreshAlerts,
         refetch,
     };

@@ -13,11 +13,16 @@ import { Alert } from 'react-native';
 
 import { setAuthToken } from '../api/client';
 import { auth, AUTH_SESSION_KEY, firebaseErrorMessage, firebaseHealthCheck } from '../services/firebase';
+import { clearOfflineAppointments } from '../services/offlineAppointmentStorage';
+import { clearOfflinePets } from '../services/offlinePetStorage';
 import { cancelAllReminders } from '../services/reminderService';
 import { showToast } from '../utils/toast';
 
 type AuthContextValue = {
     user: User | null;
+    /** true apenas enquanto o Firebase restaura a sessão ao abrir o app. */
+    initializing: boolean;
+    /** true durante login, cadastro, recuperação de senha ou logout. */
     loading: boolean;
     isAuthenticated: boolean;
     signIn: (email: string, password: string) => Promise<void>;
@@ -65,23 +70,23 @@ const persistSession = async (firebaseUser: User | null) => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [initializing, setInitializing] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const restoreSession = async () => {
         try {
-            const storedSession = await AsyncStorage.getItem(AUTH_SESSION_KEY);
+            // Aguarda o Firebase ler a sessão persistida para não exibir o login por engano.
+            await auth.authStateReady();
 
             if (auth.currentUser) {
                 setUser(auth.currentUser);
                 await persistSession(auth.currentUser);
-            } else if (storedSession) {
-                console.log('[AUTH] Sessão armazenada aguardando restauração do Firebase.');
             }
         } catch {
             console.error('Falha ao restaurar a sessão de autenticação.');
             showToast('Não foi possível restaurar sua sessão.', 'error');
         } finally {
-            setLoading(false);
+            setInitializing(false);
         }
     };
 
@@ -97,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             } catch (error) {
                 reportAuthError('session', error);
             } finally {
-                setLoading(false);
+                setInitializing(false);
             }
         });
 
@@ -158,6 +163,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             } catch {
                 showToast('Não foi possível cancelar todos os lembretes locais.', 'error');
             }
+            // A cópia offline pertence a esta conta; outra conta não pode vê-la no mesmo aparelho.
+            await Promise.all([clearOfflinePets(), clearOfflineAppointments()]);
             await signOut(auth);
             setUser(null);
             await persistSession(null);
@@ -172,6 +179,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const value = useMemo<AuthContextValue>(
         () => ({
             user,
+            initializing,
             loading,
             isAuthenticated: !!user,
             signIn,
@@ -182,7 +190,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             logout,
             restoreSession,
         }),
-        [user, loading]
+        [user, initializing, loading]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

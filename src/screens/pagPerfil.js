@@ -1,16 +1,17 @@
 import { useContext, useMemo } from "react";
 import {
-    Alert,
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import AppButton from '../components/ui/AppButton';
 import ProfileCard from '../components/ui/ProfileCard';
 import { UserContext } from "../context/UserContext";
+import { useCareProfile } from '../hooks/useCareProfile';
 import { useDeletePet, usePets } from '../hooks/usePets';
 import { useAppTheme } from '../context/ThemeProvider';
 
@@ -21,6 +22,7 @@ export default function PagPerfil({ navigation }) {
   const { user, clearUser } = useContext(UserContext);
   const { data: pets = [], isLoading: isPetsLoading } = usePets();
   const deletePetMutation = useDeletePet();
+  const { referenceClinic, nextCare } = useCareProfile();
 
   const handleDeletePet = (pet) => {
     const petName = pet.petNome || pet.name || 'Pet sem nome';
@@ -41,26 +43,12 @@ export default function PagPerfil({ navigation }) {
     ]);
   };
 
+  // A exclusão de cada pet fica no próprio card: o Alert do Android mostra no máximo 3 botões.
   const handleClear = () => {
-    if (registeredPets.length === 0) {
-      Alert.alert('Confirmar', 'Deseja limpar os dados salvos do pet?', [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'OK', onPress: async () => { if (clearUser) await clearUser(); } },
-      ]);
-      return;
-    }
-
-    Alert.alert(
-      'Escolha um pet',
-      'Selecione qual pet deseja apagar.',
-      [
-        ...registeredPets.map((pet) => ({
-          text: pet.petNome || pet.name || 'Pet sem nome',
-          onPress: () => handleDeletePet(pet),
-        })),
-        { text: 'Cancelar', style: 'cancel' },
-      ],
-    );
+    Alert.alert('Confirmar', 'Deseja limpar as preferências do perfil salvas neste aparelho?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'OK', onPress: async () => { if (clearUser) await clearUser(); } },
+    ]);
   };
 
   const registeredPets = Array.isArray(pets) ? pets : [];
@@ -68,7 +56,7 @@ export default function PagPerfil({ navigation }) {
   const mainPet = registeredPets[0];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.headerBlock}>
           <View style={styles.headerColor} />
@@ -77,7 +65,7 @@ export default function PagPerfil({ navigation }) {
               <Image source={{ uri: user.foto }} style={styles.avatar} />
             ) : (
               <View style={styles.placeholder}>
-                <Text style={{ color: colors.textMuted }}>Sem foto</Text>
+                <Text style={{ fontSize: 56 }}>🐾</Text>
               </View>
             )}
           </View>
@@ -109,6 +97,8 @@ export default function PagPerfil({ navigation }) {
                   </Text>
                   <View style={{ height: 8 }} />
                   <AppButton title="Editar pet" onPress={() => navigation.navigate('CadastroPet', { id: pet.id })} variant="outline" />
+                  <View style={{ height: 8 }} />
+                  <AppButton title="Excluir pet" onPress={() => handleDeletePet(pet)} variant="outline" disabled={deletePetMutation.isPending} />
                 </ProfileCard>
               ))}
 
@@ -121,11 +111,11 @@ export default function PagPerfil({ navigation }) {
               ) : null}
 
               <ProfileCard title="Clínica de Referência" icon="🏥">
-                <Text style={{ color: colors.text, fontWeight: '600' }}>{user.clinica || '-'}</Text>
+                <Text style={{ color: colors.text, fontWeight: '600' }}>{user.clinica || referenceClinic || 'Nenhuma clínica informada nas consultas'}</Text>
               </ProfileCard>
 
               <ProfileCard title="Cuidado Principal" icon="⚕️">
-                <Text style={{ color: colors.text, fontWeight: '600' }}>{user.cuidadoPrincipal || '-'}</Text>
+                <Text style={{ color: colors.text, fontWeight: '600' }}>{user.cuidadoPrincipal || nextCare || 'Nenhum cuidado agendado'}</Text>
                 <Text style={{ color: colors.textMuted, marginTop: 6 }}>{user.lembretesAtivos ? 'Lembretes ativos' : 'Lembretes desativados'}</Text>
               </ProfileCard>
 

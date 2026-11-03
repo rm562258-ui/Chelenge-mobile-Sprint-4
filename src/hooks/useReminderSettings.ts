@@ -31,8 +31,9 @@ export function useReminderSettings() {
             return true;
         }
 
-        await context.setUser({ ...context.user, lembretesAtivos: true });
+        // Só ativa a preferência se o sistema permitir notificações.
         if (!(await ensurePermission())) return false;
+        await context.setUser({ ...context.user, lembretesAtivos: true });
 
         const [appointmentsResult, vaccinesResult] = await Promise.all([
             appointmentsQuery.refetch(),
