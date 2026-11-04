@@ -150,12 +150,13 @@ O APK é distribuído pelo **Firebase App Distribution**. As instruções estão
 
 ## Versão publicada
 
-- **Hash do commit:** `537fc5c7e77c4ee51ab7685a01d31f19c76d2545`
-- **Hash curto:** `537fc5c`
+- **Versão:** 1.0.0 (código de build 2)
+- **Hash do commit:** `cdddcca6b409774b7dc878084357ff11fd1f1e23`
+- **Hash curto:** `cdddcca`
 
 Para conferir, abra o aplicativo instalado e acesse **Configurações > Sobre o App**. O hash aparece no bloco **Identificação da versão**.
 
-Os commits posteriores ao hash acima alteram apenas o README.md; o código publicado é o do commit 537fc5c7e77c4ee51ab7685a01d31f19c76d2545.
+Os commits posteriores ao hash acima alteram apenas o README.md; o código publicado é o do commit cdddcca6b409774b7dc878084357ff11fd1f1e23.
 
 ## Como instalar o app publicado
 
@@ -254,7 +255,7 @@ O fluxo de dados segue a ordem **Tela > Hook (TanStack Query) > Serviço > axios
 
 As etapas a seguir são para rodar o projeto em desenvolvimento. Antes de iniciar, instale:
 
-- **Node.js LTS**
+- **Node.js LTS**, na versão 22.12 ou superior
 - **Git**
 - **Android Studio**, caso utilize o emulador Android
 - Um dispositivo Android físico ou emulador Android
@@ -370,7 +371,7 @@ A aplicação utiliza os seguintes endpoints:
 
 O código centraliza as URLs em `src/api/endpoints.ts` e as requisições são realizadas pelo cliente Axios em `src/api/client.ts`. O TanStack Query é utilizado nos hooks para consultas e mutações.
 
-As listagens enviam `?userId=` com o identificador do usuário do Firebase, e os cadastros gravam esse mesmo campo no registro. A alteração usa `PATCH` porque o `PUT` do JSON Server substitui o registro inteiro.
+As listagens de pets, consultas, vacinas, medicamentos e notificações enviam `?userId=` com o identificador do usuário do Firebase, e os cadastros gravam esse mesmo campo no registro. A FAQ é igual para todos e não usa esse filtro. A alteração usa `PATCH` porque o `PUT` do JSON Server substitui o registro inteiro.
 
 ### Seed inicial
 
@@ -415,6 +416,7 @@ O endereço deve ser o IP real do computador na rede utilizada durante o teste.
 - **Android Emulator:** `http://10.0.2.2:3333`
 - **iOS Simulator:** normalmente `http://localhost:3333`
 - **Celular físico:** `http://IP_DO_COMPUTADOR:3333`
+- **API hospedada, sem rodar a API local:** `https://chelenge-mobile-sprint-4.onrender.com`
 
 Depois de alterar o `.env`, reinicie o Expo para que a variável seja carregada.
 
@@ -426,9 +428,9 @@ Crie um serviço **Web Service** apontando para este repositório e configure:
 - **Build Command:** `npm install`
 - **Start Command:** `npm start`
 
-O serviço lê a porta atribuída pelo Render através de `PORT` e escuta em `0.0.0.0`. Após publicar, informe a URL HTTPS fornecida pelo Render em `EXPO_PUBLIC_API_URL` no ambiente usado para gerar a build do aplicativo.
+O serviço lê a porta atribuída pelo Render através de `PORT` e escuta em `0.0.0.0`. Após publicar, informe a URL HTTPS fornecida pelo Render em `EXPO_PUBLIC_API_URL`, no perfil `preview` do `eas.json`.
 
-Essa variável é incorporada à build; não use `localhost`, IP privado ou `10.0.2.2` numa versão publicada. Em builds no EAS, o `.env` local não é utilizado: as variáveis precisam estar cadastradas no ambiente `preview` do EAS.
+Essa variável é incorporada à build; não use `localhost`, IP privado ou `10.0.2.2` numa versão publicada. Em builds no EAS, o `.env` local não é utilizado: as variáveis do Firebase precisam estar cadastradas no ambiente `preview` do EAS.
 
 ### Limitação do plano gratuito
 
@@ -681,7 +683,7 @@ Mostra o hash do commit atual.
 npm run build:preview
 ```
 
-Gera o APK pelo perfil `preview` do EAS.
+Gera o APK pelo perfil `preview` do EAS. Exige o EAS CLI instalado.
 
 ```bash
 npm run doctor
@@ -751,7 +753,7 @@ Vídeo de demonstração do projeto:
 - **Disco efêmero:** no plano gratuito, os dados criados podem voltar ao seed quando o serviço dorme ou reinicia, e ele dorme depois de 15 minutos sem uso.
 - **Notificações locais, não push:** elas são agendadas no próprio aparelho, e o servidor não envia notificações. Apenas consultas e vacinas geram notificações; medicamentos não geram.
 - **Entrega dos lembretes:** o Android pode atrasar um lembrete em cerca de 1 a 2 minutos. A opção "Forçar parada" do sistema cancela os lembretes já agendados.
-- **Modo offline parcial:** apenas pets e consultas funcionam sem conexão. Vacinas, medicamentos e FAQ dependem da API, e um registro já sincronizado não pode ser excluído sem conexão.
+- **Modo offline parcial:** apenas pets e consultas funcionam sem conexão. Vacinas, medicamentos, histórico de notificações e FAQ dependem da API, e um registro já sincronizado não pode ser excluído sem conexão.
 - **Consultas e pets:** a consulta guarda o nome do pet. Editar ou excluir um pet não altera as consultas já registradas.
 - **FAQ:** o conteúdo é estático e não há IA generativa no aplicativo.
 - **Plataforma:** a publicação foi feita apenas para Android.
