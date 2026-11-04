@@ -1,18 +1,16 @@
 # CLYVO VET — ClyvoCare Pet
 
-Aplicativo mobile desenvolvido em **React Native + Expo** para o **Challenge FIAP 2026 — Sprint 3**, na disciplina de **Mobile Application Development**.
+Aplicativo mobile desenvolvido em **React Native + Expo** para o **Challenge FIAP 2026 — Sprint 4 (entrega final), consolidando as Sprints 1 a 3**, na disciplina de **Mobile Application Development**.
 
 O **ClyvoCare Pet** é uma solução da CLYVO VET voltada para tutores de animais de estimação. O aplicativo centraliza informações importantes da rotina de cuidados do pet, como cadastro do animal, consultas veterinárias, vacinas, medicamentos, notificações e informações de apoio.
 
-> **Escopo deste repositório:** este projeto corresponde à **Sprint 3 de Mobile Application Development**. Ele não representa as entregas de outras disciplinas ou das Sprints posteriores.
+> **Escopo deste repositório:** este projeto corresponde à **Sprint 4 (entrega final), consolidando as Sprints 1 a 3**, de Mobile Application Development. Ele não representa as entregas de outras disciplinas.
 
 ## Problema escolhido
 
-Tutores podem ter dificuldade para manter organizadas as informações e datas relacionadas à saúde dos seus pets, como consultas, vacinas e medicamentos. A falta de acompanhamento pode fazer com que cuidados importantes sejam esquecidos.
+Tutores podem ter dificuldade para manter organizadas as informações e datas relacionadas à saúde dos seus pets, como consultas, vacinas e medicamentos. A falta de acompanhamento pode fazer com que consultas sejam perdidas, reforços de vacina passem do prazo e tratamentos sejam esquecidos.
 
-Na Sprint 3, o projeto transforma a ideia inicial em uma aplicação mobile funcional, com navegação real, autenticação, comunicação HTTP com uma API e operações de cadastro, consulta, alteração e exclusão.
-
-A especificação da Sprint 3 exige que o aplicativo tenha fluxos funcionais, integração com API, autenticação real, organização do código e documentação de execução. fileciteturn1file1L62-L80
+Ao longo das sprints, o projeto transformou a ideia inicial em uma aplicação mobile funcional, com navegação real, autenticação, comunicação HTTP com uma API e operações de cadastro, consulta, alteração e exclusão. Na Sprint 4, o aplicativo recebeu notificações locais, tema claro/escuro e publicação.
 
 ## Solução proposta
 
@@ -23,15 +21,14 @@ O ClyvoCare Pet reúne em um único aplicativo recursos para organizar os cuidad
 - manter a sessão autenticada;
 - cadastrar, consultar, editar e excluir pets;
 - cadastrar, consultar, editar e excluir consultas;
-- registrar e consultar vacinas;
-- registrar e consultar medicamentos;
-- visualizar alertas e notificações;
+- registrar, consultar, editar e excluir vacinas;
+- registrar, consultar, editar e excluir medicamentos;
+- receber confirmações e lembretes de consultas e vacinas;
+- visualizar alertas e o histórico de notificações;
 - consultar informações frequentes sobre o uso do aplicativo e cuidados com o pet;
-- acessar perfil, configurações e informações da equipe.
+- acessar perfil, configurações, informações da equipe e dados da versão instalada.
 
-A Sprint 3 determina que o aplicativo não seja apenas uma navegação de telas, mas execute ações reais e tenha integração de ponta a ponta com a API. fileciteturn1file9L529-L543
-
-## Funcionalidades da Sprint 3
+## Funcionalidades
 
 ### Autenticação
 
@@ -43,31 +40,41 @@ A Sprint 3 determina que o aplicativo não seja apenas uma navegação de telas,
 - Bloqueio das telas internas para usuários não autenticados.
 - Validação dos formulários e mensagens de erro.
 
-A autenticação utiliza **Firebase Authentication**, permitido expressamente no enunciado da Sprint 3. A especificação também exige persistência da sessão, proteção das telas e logout funcional. fileciteturn1file8L478-L497
+A autenticação utiliza **Firebase Authentication**.
+
+### Início
+
+- Resumo com a quantidade de pets, a próxima consulta, o próximo reforço de vacina e os medicamentos em andamento.
+- Atalhos para as demais áreas do aplicativo.
 
 ### Pets
 
 - Listagem de pets.
+- Busca por nome.
 - Cadastro de pet.
 - Visualização dos detalhes.
 - Edição.
-- Exclusão.
-- Persistência local de apoio quando a conexão não está disponível.
+- Exclusão, que remove junto as vacinas e os medicamentos do pet.
+- Persistência local de apoio quando a conexão não está disponível, com os avisos "Salvo offline" e "Sincronizado".
 
 ### Consultas veterinárias
 
-- Listagem de consultas.
-- Cadastro.
+- Listagem de consultas na Agenda de Cuidados.
+- Busca e filtro de consultas pendentes.
+- Cadastro com seleção do pet, data, horário, tipo (Consulta ou Retorno), situação, lembrete, clínica, veterinário e notas.
+- A consulta pode ser registrada no passado, no presente ou no futuro.
 - Visualização dos detalhes.
 - Edição.
 - Exclusão.
-- Organização por data e status.
-- Atualização do status da consulta conforme a data.
+- Marcação da consulta como concluída.
+- Atualização do status conforme a data: uma consulta não concluída passa a "Atrasada" depois que o dia termina.
+- Persistência local de apoio quando a conexão não está disponível.
 
 ### Vacinas
 
 - Listagem da carteira vacinal.
-- Cadastro de vacina.
+- Busca e filtro das vacinas com reforço.
+- Cadastro de vacina com seleção do pet.
 - Visualização dos detalhes.
 - Edição.
 - Exclusão.
@@ -76,7 +83,8 @@ A autenticação utiliza **Firebase Authentication**, permitido expressamente no
 ### Medicamentos
 
 - Listagem de medicamentos.
-- Cadastro de tratamento.
+- Busca e filtro dos tratamentos ativos.
+- Cadastro de tratamento com seleção do pet.
 - Visualização dos detalhes.
 - Edição.
 - Exclusão.
@@ -84,28 +92,88 @@ A autenticação utiliza **Firebase Authentication**, permitido expressamente no
 
 ### Alertas e notificações
 
-- Consulta de notificações.
-- Exibição de alertas relacionados às consultas próximas.
-- Histórico de notificações.
+- Tela de alertas com as consultas não concluídas dos próximos 7 dias e os avisos gerados pelos cuidados.
+- Histórico de notificações, da mais recente para a mais antiga, com a situação "Agendada" ou "Enviada".
+- Exclusão de registros do histórico.
 
 ### Área de apoio veterinário
 
 A tela identificada no aplicativo como **Perguntas frequentes (FAQ)** apresenta respostas para dúvidas comuns sobre cadastro de pets, consultas, vacinas e medicamentos.
 
-> Nesta versão da Sprint 3, essa tela é uma área de FAQ. Ela **não deve ser descrita como uma IA generativa já integrada**, pois o código entregue atualmente apresenta perguntas e respostas previamente definidas.
+> Essa tela é uma área de FAQ com **conteúdo estático**: as perguntas e respostas são previamente definidas no seed da API e carregadas por `GET /faq`. Ela **não deve ser descrita como uma IA generativa**.
 
 ### Perfil e configurações
 
-- Visualização do perfil.
-- Configurações do aplicativo.
+- Perfil do pet, com os pets cadastrados, a clínica de referência e o próximo cuidado.
+- Configurações do aplicativo: lembretes, aparência e atalhos.
 - Tela com os integrantes do projeto.
+- Tela Sobre o App, com os dados da versão instalada.
+
+## Novidades da Sprint 4
+
+### Tema claro e escuro
+
+Em **Configurações > Aparência**, o usuário escolhe entre **Sistema**, **Claro** e **Escuro**. A escolha fica salva no aparelho e é mantida ao reabrir o aplicativo.
+
+### Notificações locais
+
+O aplicativo usa notificações locais em cenários reais de cuidado:
+
+| Notificação | Evento que gera | Quando aparece |
+|---|---|---|
+| Consulta agendada | Cadastrar uma consulta futura que não esteja concluída | Na hora do cadastro |
+| Lembrete de consulta | Cadastrar ou editar uma consulta com lembrete | No horário, 30 minutos, 1 hora ou 1 dia antes da consulta |
+| Vacina registrada | Registrar uma vacina com próximo reforço | Na hora do cadastro |
+| Lembrete de reforço de vacina | Registrar ou editar uma vacina com próximo reforço | Às 9h do dia anterior ao reforço |
+
+- **Permissão:** é solicitada no primeiro agendamento ou ao ligar os lembretes em Configurações. Se for negada, o aplicativo continua funcionando e orienta o usuário a ativar as notificações nas configurações do sistema.
+- **Toque na notificação:** abre a tela de detalhes da consulta ou da vacina correspondente.
+- **Lembretes de cuidado:** o switch em Configurações desliga todos os lembretes. Ao ligar novamente, o aplicativo reagenda os lembretes de consultas e vacinas.
+- **Edição:** o lembrete é reagendado com os novos dados.
+- **Exclusão e conclusão:** excluir uma consulta ou vacina cancela o lembrete dela, assim como marcar a consulta como concluída.
+- **Saída da conta:** o logout cancela os lembretes do aparelho. Ao entrar novamente, os lembretes que faltam são restaurados, desde que a permissão já tenha sido concedida e o switch esteja ligado.
+- **Histórico:** cada notificação é registrada em `/notifications` e aparece na tela de histórico.
+
+### Tela Sobre o App
+
+Exibe o nome do aplicativo, a versão, o repositório, o host da API, a data do build, o hash do commit (completo e curto) e os integrantes.
+
+### API hospedada na nuvem
+
+A API está hospedada no **Render**, em plano gratuito: https://chelenge-mobile-sprint-4.onrender.com
+
+A pasta `backend/` é um serviço próprio do JSON Server, que lê a porta da variável `PORT` e escuta em `0.0.0.0`. O aplicativo recebe o endereço da API por `EXPO_PUBLIC_API_URL` no momento do build e mostra o host em uso na tela Sobre o App.
+
+### Publicação no Firebase App Distribution
+
+O APK é distribuído pelo **Firebase App Distribution**. As instruções estão em [Como instalar o app publicado](#como-instalar-o-app-publicado).
+
+## Versão publicada
+
+- **Hash do commit:** `537fc5c7e77c4ee51ab7685a01d31f19c76d2545`
+- **Hash curto:** `537fc5c`
+
+Para conferir, abra o aplicativo instalado e acesse **Configurações > Sobre o App**. O hash aparece no bloco **Identificação da versão**.
+
+Os commits posteriores ao hash acima alteram apenas o README.md; o código publicado é o do commit 537fc5c7e77c4ee51ab7685a01d31f19c76d2545.
+
+## Como instalar o app publicado
+
+1. Abra o convite recebido por e-mail do **Firebase App Distribution**.
+2. Aceite o convite.
+3. Instale o aplicativo pelo link do convite ou pelo app **Firebase App Tester**.
+4. Se o Android solicitar, permita a instalação do aplicativo.
+5. Abra o ClyvoCare Pet e crie uma conta nova na tela de cadastro para testar.
+
+A conta nova começa sem dados, pois cada tutor vê apenas os próprios registros.
 
 ## Tecnologias utilizadas
 
 ### Mobile
 
-- React Native
-- Expo
+- React Native 0.81
+- Expo SDK 54
+- React 19.1, com React Compiler habilitado
 - TypeScript
 - JavaScript
 
@@ -117,15 +185,12 @@ A tela identificada no aplicativo como **Perguntas frequentes (FAQ)** apresenta 
 
 A navegação principal do aplicativo é feita pelo **React Navigation**, com rotas declaradas no `src/navigation/AppNavigator.js`.
 
-O enunciado da Sprint 3 exige pelo menos 6 telas distintas e o uso de uma biblioteca de navegação com rotas explicitamente configuradas. fileciteturn1file0L10-L22
-
 ### Comunicação e dados
 
 - Axios
 - TanStack Query
 - JSON Server
 - AsyncStorage
-- Expo Secure Store
 
 ### Autenticação
 
@@ -136,46 +201,58 @@ O enunciado da Sprint 3 exige pelo menos 6 telas distintas e o uso de uma biblio
 - React Hook Form
 - Zod
 
+### Notificações
+
+- Expo Notifications (notificações locais)
+
 ### Interface
 
-- NativeWind
-- Lucide React Native
+- `StyleSheet` do React Native com paletas próprias de tema claro e escuro
 - Componentes reutilizáveis próprios
+
+### Build e publicação
+
+- Expo Constants, para os dados da versão exibidos em Sobre o App
+- EAS Build, com o perfil `preview` em `eas.json`
+- Firebase App Distribution
 
 ## Arquitetura do projeto
 
-A aplicação está organizada separando telas, componentes, hooks, contexto, serviços, API e tipos.
+A aplicação está organizada separando telas, componentes, hooks, contexto, serviços e API.
 
 ```text
-Chelenge-mobile-Sprint-3/
+Chelenge-mobile-Sprint-4/
 ├── assets/                 # Imagens e recursos visuais
 ├── src/
-│   ├── api/                # Axios, endpoints e aquecimento da API
-│   ├── components/         # Componentes reutilizáveis
+│   ├── api/                # Cliente Axios, endpoints, CRUD genérico e aquecimento da API
+│   ├── components/ui/      # Componentes reutilizáveis
 │   ├── config/             # Configuração de ambiente e dados da build
 │   ├── constants/          # Constantes da aplicação
-│   ├── context/            # Contextos da aplicação e autenticação
-│   ├── hooks/              # Hooks de API e lógica reutilizável
+│   ├── context/            # Autenticação, tema, perfil e avisos (toast)
+│   ├── hooks/              # Hooks do TanStack Query e lógica reutilizável
 │   ├── navigation/         # Configuração do React Navigation
-│   ├── providers/          # Providers, incluindo TanStack Query
+│   ├── providers/          # Provider do TanStack Query
 │   ├── screens/            # Telas do aplicativo
-│   ├── services/           # Serviços de autenticação, CRUD e notificações
-│   ├── theme/              # Tema e paletas de cores
-│   └── utils/              # Funções utilitárias
+│   ├── services/           # Serviços de CRUD, Firebase, notificações, lembretes e armazenamento offline
+│   ├── theme/              # Paletas de cores
+│   └── utils/              # Datas, validação, resumo da Home e funções utilitárias
 ├── backend/
+│   ├── public/             # Pasta exigida pelo JSON Server em produção
 │   ├── db.json             # Seed e armazenamento do JSON Server
 │   └── package.json        # Serviço da API para hospedagem no Render
 ├── App.js                  # Ponto de entrada da aplicação
+├── app.config.js           # Inclui o hash do commit e a data do build na configuração
 ├── app.json                # Configuração do Expo
+├── eas.json                # Perfis de build do EAS
 ├── package.json            # Dependências e scripts
 └── README.md
 ```
 
-A separação entre interface, lógica reutilizável e acesso à API está de acordo com o objetivo de organização arquitetural da Sprint 3. O enunciado determina que chamadas HTTP e regras de negócio não fiquem diretamente concentradas nos componentes de tela. fileciteturn1file3L182-L190
+O fluxo de dados segue a ordem **Tela > Hook (TanStack Query) > Serviço > axios > API**. As telas não fazem chamadas HTTP: as requisições ficam nos serviços e as regras de negócio ficam em hooks, serviços e utilitários.
 
 ## Requisitos para executar
 
-Antes de iniciar o projeto, instale:
+As etapas a seguir são para rodar o projeto em desenvolvimento. Antes de iniciar, instale:
 
 - **Node.js LTS**
 - **Git**
@@ -190,19 +267,19 @@ O Expo é executado pelo projeto usando `npx expo`, portanto não é necessário
 O repositório utilizado pelo projeto é:
 
 ```text
-https://github.com/rm562258-ui/Chelenge-mobile-Sprint-3.git
+https://github.com/rm562258-ui/Chelenge-mobile-Sprint-4
 ```
 
 Clone:
 
 ```bash
-git clone https://github.com/rm562258-ui/Chelenge-mobile-Sprint-3.git
+git clone https://github.com/rm562258-ui/Chelenge-mobile-Sprint-4
 ```
 
 Entre na pasta:
 
 ```bash
-cd Chelenge-mobile-Sprint-3
+cd Chelenge-mobile-Sprint-4
 ```
 
 ## 2. Instalar as dependências
@@ -219,23 +296,27 @@ O diretório `node_modules` não precisa estar no repositório. Ele será criado
 
 O aplicativo utiliza o Firebase Authentication para cadastro, login, recuperação de senha e persistência da sessão.
 
-Crie um arquivo chamado `.env` na raiz do projeto.
+Crie um arquivo chamado `.env` na raiz do projeto a partir do `.env.example`:
 
-Use as seguintes variáveis:
-
-```env
-EXPO_PUBLIC_FIREBASE_API_KEY=SUA_API_KEY
-EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=SEU_AUTH_DOMAIN
-EXPO_PUBLIC_FIREBASE_PROJECT_ID=SEU_PROJECT_ID
-EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=SEU_STORAGE_BUCKET
-EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=SEU_MESSAGING_SENDER_ID
-EXPO_PUBLIC_FIREBASE_APP_ID=SEU_APP_ID
-
-# Desenvolvimento: emulador Android
-EXPO_PUBLIC_API_URL=http://10.0.2.2:3333
+```bash
+cp .env.example .env
 ```
 
-Substitua os valores do Firebase pelas credenciais do projeto configurado no Firebase Console.
+No Prompt de Comando do Windows, use `copy .env.example .env`.
+
+Preencha as seguintes variáveis:
+
+```env
+EXPO_PUBLIC_FIREBASE_API_KEY=
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+EXPO_PUBLIC_FIREBASE_APP_ID=
+EXPO_PUBLIC_API_URL=
+```
+
+Use as credenciais do projeto configurado no Firebase Console. O valor de `EXPO_PUBLIC_API_URL` está descrito na seção 5. O aplicativo não inicia sem as variáveis do Firebase.
 
 ### Configurar o Firebase Authentication
 
@@ -255,36 +336,45 @@ Sem o provedor de e-mail/senha habilitado, o cadastro e o login não funcionarã
 
 A API REST usa **JSON Server** e o arquivo `backend/db.json`. O mesmo serviço pode ser executado localmente ou hospedado no Render.
 
-A aplicação possui endpoints para:
+A API hospedada está disponível em:
+
+```text
+https://chelenge-mobile-sprint-4.onrender.com
+```
+
+A aplicação utiliza os seguintes endpoints:
 
 | Método | Endpoint |
 |---|---|
 | GET | `/pets` |
 | POST | `/pets` |
 | GET | `/pets/:id` |
-| PUT | `/pets/:id` |
+| PATCH | `/pets/:id` |
 | DELETE | `/pets/:id` |
 | GET | `/appointments` |
 | POST | `/appointments` |
-| GET | `/appointments/:id` |
-| PUT | `/appointments/:id` |
+| PATCH | `/appointments/:id` |
 | DELETE | `/appointments/:id` |
 | GET | `/vaccines` |
 | POST | `/vaccines` |
-| GET | `/vaccines/:id` |
-| PUT | `/vaccines/:id` |
+| PATCH | `/vaccines/:id` |
 | DELETE | `/vaccines/:id` |
 | GET | `/medications` |
 | POST | `/medications` |
-| GET | `/medications/:id` |
-| PUT | `/medications/:id` |
+| PATCH | `/medications/:id` |
 | DELETE | `/medications/:id` |
 | GET | `/notifications` |
-| GET | `/aiHistory` |
+| POST | `/notifications` |
+| DELETE | `/notifications/:id` |
+| GET | `/faq` |
 
 O código centraliza as URLs em `src/api/endpoints.ts` e as requisições são realizadas pelo cliente Axios em `src/api/client.ts`. O TanStack Query é utilizado nos hooks para consultas e mutações.
 
-A especificação da Sprint 3 exige integração HTTP real, uso de TanStack Query, pelo menos duas funcionalidades dependentes da API e CRUD completo nas funcionalidades avaliadas. fileciteturn1file0L25-L42
+As listagens enviam `?userId=` com o identificador do usuário do Firebase, e os cadastros gravam esse mesmo campo no registro. A alteração usa `PATCH` porque o `PUT` do JSON Server substitui o registro inteiro.
+
+### Seed inicial
+
+O arquivo `backend/db.json` traz registros iniciais de pets, consultas, vacinas e medicamentos, além das perguntas da FAQ. Como o aplicativo filtra os dados por `userId`, os registros do seed sem dono não aparecem para os tutores: eles podem ser vistos consultando a API diretamente.
 
 ## 5. Executar a API local
 
@@ -294,7 +384,7 @@ Abra um terminal na pasta do projeto e execute:
 npm run api
 ```
 
-A API ficará disponível na porta `3333`. O seed contém registros iniciais; o disco do plano gratuito do Render é efêmero, portanto os dados gravados na nuvem podem ser redefinidos quando a instância reiniciar.
+A API ficará disponível na porta `3333`.
 
 Por padrão, para o **emulador Android do Android Studio**, utilize no `.env`:
 
@@ -333,16 +423,18 @@ Depois de alterar o `.env`, reinicie o Expo para que a variável seja carregada.
 Crie um serviço **Web Service** apontando para este repositório e configure:
 
 - **Root Directory:** `backend`
-- **Build Command:** deixe vazio (ou `npm install`)
+- **Build Command:** `npm install`
 - **Start Command:** `npm start`
 
-O serviço lê a porta atribuída pelo Render através de `PORT` e escuta em `0.0.0.0`. Após publicar, use a URL HTTPS fornecida pelo Render no `.env` usado para gerar a build do aplicativo:
+O serviço lê a porta atribuída pelo Render através de `PORT` e escuta em `0.0.0.0`. Após publicar, informe a URL HTTPS fornecida pelo Render em `EXPO_PUBLIC_API_URL` no ambiente usado para gerar a build do aplicativo.
 
-```env
-EXPO_PUBLIC_API_URL=https://SEU_SERVICO.onrender.com
-```
+Essa variável é incorporada à build; não use `localhost`, IP privado ou `10.0.2.2` numa versão publicada. Em builds no EAS, o `.env` local não é utilizado: as variáveis precisam estar cadastradas no ambiente `preview` do EAS.
 
-Essa variável é incorporada à build; não use `localhost`, IP privado ou `10.0.2.2` numa versão publicada.
+### Limitação do plano gratuito
+
+O serviço dorme depois de 15 minutos sem uso e leva cerca de 1 minuto para acordar. Se o aplicativo não carregar os dados, abra https://chelenge-mobile-sprint-4.onrender.com/pets no navegador, aguarde a resposta e tente novamente. O host em uso aparece em **Configurações > Sobre o App**.
+
+O disco do plano gratuito é efêmero, portanto os dados criados podem voltar ao seed quando o serviço dorme ou reinicia.
 
 > **Limitação de segurança:** a API JSON Server não implementa autenticação nem valida o token Bearer do Firebase enviado pelo aplicativo. Os dados servidos por essa API não têm controle de acesso por usuário.
 
@@ -353,10 +445,12 @@ Com o JSON Server rodando, abra um segundo terminal na pasta do projeto.
 Execute:
 
 ```bash
-npx expo start --clear
+npx expo start --clear --go
 ```
 
 O Expo iniciará o Metro Bundler.
+
+> A opção `--go` é necessária porque o projeto tem o `expo-dev-client` instalado. Sem ela, o Expo procura um build de desenvolvimento e mostra o erro "No development build".
 
 ### Android Studio — emulador Pixel 6
 
@@ -381,12 +475,22 @@ O Expo deverá abrir o aplicativo no emulador Android.
 Também é possível iniciar o projeto diretamente com:
 
 ```bash
-npm run android
+npm start
 ```
 
-Esse comando executa `expo start --android`.
+Esse comando executa `expo start --go`.
 
-> O comando `npx expo run:android` não é o fluxo principal documentado neste projeto. Para esta entrega, utilize o Expo com o emulador ou dispositivo conectado.
+### Testar as notificações
+
+As notificações devem ser testadas em build nativo no emulador ou no APK publicado. Para gerar o build nativo:
+
+```bash
+npx expo run:android
+```
+
+Esse comando é o mesmo executado por `npm run android` e exige o Android SDK configurado. No Windows, caminhos muito longos podem fazer o build falhar; nesse caso, clone o projeto em uma pasta com caminho curto.
+
+> No Expo Go, as notificações locais são exibidas, mas tocar em uma delas com o app em segundo plano abre o Expo Go, e não a tela de detalhes.
 
 ## 7. Ordem recomendada dos terminais
 
@@ -399,7 +503,7 @@ npm run api
 ### Terminal 2 — Aplicativo
 
 ```bash
-npx expo start --clear
+npx expo start --clear --go
 ```
 
 Depois, pressione `a` para abrir no emulador Android.
@@ -409,30 +513,38 @@ Depois, pressione `a` para abrir no emulador Android.
 Para validar a aplicação, siga esta sequência:
 
 1. Abrir o aplicativo.
-2. Criar uma conta.
-3. Realizar login.
-4. Confirmar que o usuário entra na área protegida.
-5. Cadastrar um pet.
-6. Visualizar os pets cadastrados.
-7. Abrir os detalhes do pet.
-8. Editar o pet.
-9. Excluir o pet.
-10. Cadastrar uma consulta.
-11. Consultar a consulta criada.
-12. Editar a consulta.
-13. Excluir a consulta.
-14. Cadastrar uma vacina.
-15. Consultar a carteira vacinal.
-16. Editar ou excluir uma vacina.
-17. Cadastrar um medicamento.
-18. Consultar os medicamentos.
-19. Editar ou excluir um medicamento.
-20. Consultar alertas e notificações.
-21. Acessar a área de perguntas frequentes.
-22. Acessar perfil e configurações.
-23. Abrir a tela de integrantes.
-24. Realizar logout.
-25. Confirmar que as telas protegidas deixam de estar acessíveis.
+2. Criar uma conta nova.
+3. Confirmar que o usuário entra na área protegida.
+4. Cadastrar dois pets.
+5. Visualizar e buscar os pets cadastrados.
+6. Abrir os detalhes de um pet.
+7. Editar o pet.
+8. Excluir um dos pets.
+9. Cadastrar uma consulta para daqui a 3 minutos, com o lembrete **No horário**.
+10. Aceitar a permissão de notificações e confirmar que a notificação "Consulta agendada" chegou.
+11. Colocar o aplicativo em segundo plano e observar a notificação "Lembrete de consulta". Ela pode atrasar cerca de 1 a 2 minutos.
+12. Tocar na notificação e confirmar que os detalhes da consulta foram abertos.
+13. Consultar a consulta criada na Agenda de Cuidados.
+14. Editar a consulta.
+15. Marcar a consulta como concluída.
+16. Excluir a consulta.
+17. Cadastrar uma vacina com próximo reforço e confirmar a notificação "Vacina registrada".
+18. Consultar a carteira vacinal.
+19. Editar e excluir uma vacina.
+20. Cadastrar um medicamento.
+21. Consultar os medicamentos.
+22. Editar e excluir um medicamento.
+23. Consultar os alertas e o histórico de notificações.
+24. Acessar a área de perguntas frequentes.
+25. Acessar o perfil do pet e as configurações.
+26. Alternar entre os temas Sistema, Claro e Escuro.
+27. Desligar e ligar o switch de lembretes.
+28. Abrir a tela de integrantes.
+29. Abrir a tela Sobre o App e conferir o hash do commit.
+30. Fechar e reabrir o aplicativo e confirmar que a sessão continua ativa.
+31. Realizar logout.
+32. Confirmar que as telas protegidas deixam de estar acessíveis.
+33. Realizar login novamente.
 
 ## 9. CRUD e atualização da interface
 
@@ -454,9 +566,7 @@ API HTTP / JSON Server
 backend/db.json
 ```
 
-As mutações invalidam as queries correspondentes para atualizar os dados apresentados na interface sem exigir reinicialização manual do aplicativo.
-
-O enunciado exige que as alterações feitas pelo usuário sejam refletidas automaticamente na interface e que existam estados de carregamento durante as requisições. fileciteturn1file8L464-L475
+As mutações invalidam as queries correspondentes para atualizar os dados apresentados na interface sem exigir reinicialização manual do aplicativo. Durante as requisições, as listas exibem estados de carregamento, erro e lista vazia.
 
 ## 10. Persistência
 
@@ -474,15 +584,11 @@ Responsável pela autenticação real:
 
 ### AsyncStorage
 
-Utilizado para armazenamento local, incluindo informações de sessão e suporte ao funcionamento offline de determinadas entidades.
-
-### Expo Secure Store
-
-Utilizado para armazenamento seguro de informações relacionadas à sessão/token.
+Utilizado para armazenamento local, incluindo informações de sessão, escolha de tema, preferências do perfil, controle dos lembretes agendados e suporte ao funcionamento offline de pets e consultas.
 
 ### JSON Server
 
-Utilizado pela API JSON Server para dados de pets, consultas, vacinas, medicamentos e demais recursos definidos em `backend/db.json`.
+Utilizado pela API JSON Server para dados de pets, consultas, vacinas, medicamentos, histórico de notificações e perguntas da FAQ, definidos em `backend/db.json`.
 
 ## 11. Telas e rotas
 
@@ -515,8 +621,9 @@ A navegação principal está configurada em `src/navigation/AppNavigator.js`.
 - `IaVeterinaria`
 - `Configuracoes`
 - `Equipe`
+- `Sobre`
 
-O aplicativo possui mais de 6 telas distintas, atendendo à quantidade mínima prevista no requisito de navegação da Sprint 3. fileciteturn1file0L10-L22
+O aplicativo possui 23 telas: 3 de autenticação e 20 da área protegida.
 
 ## 12. Scripts disponíveis
 
@@ -526,7 +633,7 @@ Os principais comandos definidos no `package.json` são:
 npm start
 ```
 
-Inicia o Expo.
+Inicia o Expo no modo Expo Go.
 
 ```bash
 npm run dev
@@ -544,13 +651,13 @@ Inicia o JSON Server na porta `3333`.
 npm run android
 ```
 
-Inicia o Expo direcionado ao Android.
+Gera e executa o build nativo no Android.
 
 ```bash
 npm run ios
 ```
 
-Inicia o Expo direcionado ao iOS.
+Gera e executa o build nativo no iOS.
 
 ```bash
 npm run web
@@ -563,6 +670,24 @@ npm run lint
 ```
 
 Executa a verificação de lint configurada no projeto.
+
+```bash
+npm run commit:hash
+```
+
+Mostra o hash do commit atual.
+
+```bash
+npm run build:preview
+```
+
+Gera o APK pelo perfil `preview` do EAS.
+
+```bash
+npm run doctor
+```
+
+Executa o `expo-doctor`.
 
 ## 13. Estrutura da autenticação
 
@@ -589,6 +714,10 @@ Ao realizar logout:
 ```text
 Logout
   ↓
+Cancelamento dos lembretes do aparelho
+  ↓
+Limpeza dos dados offline
+  ↓
 Firebase signOut
   ↓
 Limpeza da sessão
@@ -603,7 +732,7 @@ AuthStack
 
 Vídeo de demonstração do projeto:
 
-**YouTube:** https://youtu.be/o4Tgl3FewcU
+**YouTube:** https://youtu.be/hEYpFOCBFKc
 
 ## 15. Integrantes
 
@@ -616,6 +745,18 @@ Vídeo de demonstração do projeto:
 | Vinícius Luis Exposito Morassi Garcia | RM563340 |
 
 
+## 16. Limitações conhecidas
+
+- **API sem autenticação própria:** o JSON Server não valida o token do Firebase e é compartilhado entre os usuários. A separação por tutor é feita pelo filtro `userId` enviado pelo aplicativo, e não por controle de acesso no servidor.
+- **Disco efêmero:** no plano gratuito, os dados criados podem voltar ao seed quando o serviço dorme ou reinicia, e ele dorme depois de 15 minutos sem uso.
+- **Notificações locais, não push:** elas são agendadas no próprio aparelho, e o servidor não envia notificações. Apenas consultas e vacinas geram notificações; medicamentos não geram.
+- **Entrega dos lembretes:** o Android pode atrasar um lembrete em cerca de 1 a 2 minutos. A opção "Forçar parada" do sistema cancela os lembretes já agendados.
+- **Modo offline parcial:** apenas pets e consultas funcionam sem conexão. Vacinas, medicamentos e FAQ dependem da API, e um registro já sincronizado não pode ser excluído sem conexão.
+- **Consultas e pets:** a consulta guarda o nome do pet. Editar ou excluir um pet não altera as consultas já registradas.
+- **FAQ:** o conteúdo é estático e não há IA generativa no aplicativo.
+- **Plataforma:** a publicação foi feita apenas para Android.
+- **Tela Sobre o App:** o texto do repositório exibe o nome anterior, `Chelenge-mobile-Sprint-3`. O repositório da entrega é o indicado na seção 1.
+
 ## Checklist rápido
 
 ```text
@@ -627,13 +768,16 @@ Vídeo de demonstração do projeto:
 [ ] .env criado e configurado
 [ ] EXPO_PUBLIC_API_URL configurado
 [ ] npm run api executado
-[ ] npx expo start --clear executado
+[ ] npx expo start --clear --go executado
 [ ] Aplicativo abriu no Android
 [ ] Cadastro/login funcionando
 [ ] CRUD de pets funcionando
 [ ] CRUD de consultas funcionando
 [ ] Vacinas funcionando
 [ ] Medicamentos funcionando
+[ ] Notificações funcionando
+[ ] Tema claro/escuro funcionando
+[ ] Hash do commit conferido em Sobre o App
 [ ] Logout funcionando
 [ ] Vídeo corresponde à versão entregue
 [ ] Integrantes e RMs conferidos
