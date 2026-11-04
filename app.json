@@ -31,6 +31,11 @@
     "experiments": {
       "reactCompiler": true
     },
+    "extra": {
+      "eas": {
+        "projectId": "f458670a-035a-4ad2-a4f4-ff1ea8d4a6b3"
+      }
+    },
     "plugins": [
       "expo-secure-store",
       [
