@@ -47,6 +47,24 @@
       "breed": "srd",
       "userId": "Yp4DeXFtJcPXpZyynCJQf0t3Gnf2",
       "id": "PrHUQ0wHLQw"
+    },
+    {
+      "petNome": "gato",
+      "especie": "gato",
+      "raca": "Srd",
+      "idade": "4",
+      "peso": "3",
+      "userId": "itwGr2jVdnfzGHRk6khTUZCuHUB2",
+      "id": "BqY8umSIP0I"
+    },
+    {
+      "petNome": "rex",
+      "especie": "co",
+      "raca": "Srd",
+      "idade": "4",
+      "peso": "6",
+      "userId": "itwGr2jVdnfzGHRk6khTUZCuHUB2",
+      "id": "Dr4KQd8s1s8"
     }
   ],
   "appointments": [
@@ -73,6 +91,19 @@
       "notes": "Revisão do acompanhamento veterinário.",
       "veterinarian": "Dr. Rafael Lima",
       "clinic": "Clínica Clyvo Vet"
+    },
+    {
+      "petName": "gato",
+      "date": "04/11/26",
+      "time": "14:06",
+      "reminder": "30min",
+      "type": "Consulta",
+      "status": "Agendada",
+      "clinic": "",
+      "veterinarian": "",
+      "notes": "",
+      "userId": "itwGr2jVdnfzGHRk6khTUZCuHUB2",
+      "id": "i4-BAY0qoRY"
     }
   ],
   "vaccines": [
@@ -92,6 +123,16 @@
       "date": "2026-10-21",
       "dose": "Reforço anual",
       "notes": "Aplicação registrada na carteira vacinal."
+    },
+    {
+      "name": "v10",
+      "petId": "Dr4KQd8s1s8",
+      "date": "11/12/26",
+      "dose": "1dose",
+      "nextDoseDate": "11/12/27",
+      "notes": "",
+      "userId": "itwGr2jVdnfzGHRk6khTUZCuHUB2",
+      "id": "D8_6_qVKUUY"
     }
   ],
   "medications": [
@@ -108,7 +149,30 @@
       "notes": "Administrar junto à alimentação."
     }
   ],
-  "notifications": [],
+  "notifications": [
+    {
+      "title": "Lembrete de consulta",
+      "message": "Consulta de gato: Consulta, em 04/11/26 às 14:06.",
+      "type": "appointment",
+      "refId": "i4-BAY0qoRY",
+      "scheduledFor": "2026-11-04T13:36:00.000Z",
+      "createdAt": "2026-11-04T13:35:56.316Z",
+      "read": false,
+      "userId": "itwGr2jVdnfzGHRk6khTUZCuHUB2",
+      "id": "JLUSq40ovIc"
+    },
+    {
+      "title": "Vacina registrada",
+      "message": "v10 registrada. Próximo reforço em 11/12/27.",
+      "type": "vaccine",
+      "refId": "D8_6_qVKUUY",
+      "scheduledFor": "2026-11-04T13:36:37.761Z",
+      "createdAt": "2026-11-04T13:36:37.761Z",
+      "read": false,
+      "userId": "itwGr2jVdnfzGHRk6khTUZCuHUB2",
+      "id": "GjsoRKUXdZM"
+    }
+  ],
   "faq": [
     {
       "id": "faq-001",

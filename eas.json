@@ -13,7 +13,7 @@
       },
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://SEU-SERVICO.onrender.com"
+        "EXPO_PUBLIC_API_URL": "https://chelenge-mobile-sprint-4.onrender.com"
       }
     },
     "production": {
