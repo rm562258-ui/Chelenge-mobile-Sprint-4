@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
-import { EmptyState, ErrorState } from '../components/ui/ListState';
-import LoadingSkeleton from '../components/ui/LoadingSkeleton';
+import DetailFallback from '../components/ui/DetailFallback';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useDeleteMedication, useMedications } from '../hooks/useMedications';
 import { usePetOptions } from '../hooks/usePetOptions';
 import { useAppTheme } from '../context/ThemeProvider';
+import { confirmDelete } from '../utils/confirmDelete';
 import { formatDisplayDate } from '../utils/date';
 
 export default function MedicationDetailsScreen({ route, navigation }) {
@@ -19,31 +19,25 @@ export default function MedicationDetailsScreen({ route, navigation }) {
     const med = Array.isArray(data) ? data.find((m) => String(m.id) === String(id)) : null;
     const deleteMutation = useDeleteMedication();
 
-    const handleDelete = () => {
-        Alert.alert('Confirmar', 'Deseja excluir este medicamento?', [
-            { text: 'Cancelar', style: 'cancel' },
-            {
-                text: 'Excluir',
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteMutation.mutateAsync(id);
-                        navigation.popTo('Medications');
-                    } catch {
-                        Alert.alert('Erro', 'Não foi possível excluir o medicamento. Tente novamente.');
-                    }
-                },
-            }
-        ]);
-    };
+    const handleDelete = () => confirmDelete({
+        message: 'Deseja excluir este medicamento?',
+        errorMessage: 'Não foi possível excluir o medicamento. Tente novamente.',
+        onConfirm: async () => {
+            await deleteMutation.mutateAsync(id);
+            navigation.popTo('Medications');
+        },
+    });
 
     if (!med) {
         return (
-            <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
-                {isLoading ? <LoadingSkeleton rows={1} /> : isError
-                    ? <ErrorState title="Não foi possível carregar o medicamento." onRetry={refetch} />
-                    : <EmptyState title="Medicamento não encontrado." description="O registro pode ter sido excluído." />}
-            </SafeAreaView>
+            <DetailFallback
+                isLoading={isLoading}
+                isError={isError}
+                onRetry={refetch}
+                errorTitle="Não foi possível carregar o medicamento."
+                emptyTitle="Medicamento não encontrado."
+                emptyDescription="O registro pode ter sido excluído."
+            />
         );
     }
 

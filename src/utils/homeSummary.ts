@@ -1,4 +1,5 @@
 import { combineDateAndTime, isMedicationInProgress, parseAppDate } from './date';
+import { getNextDoseDate } from './vaccines';
 
 export type AppointmentSummaryItem = {
     date?: string;
@@ -58,13 +59,12 @@ export function pickNextAppointment(appointments: AppointmentSummaryItem[], now:
     return closest(pending, now);
 }
 
-const dueDateOf = (vaccine: VaccineSummaryItem) => (
-    vaccine.nextDoseDate !== undefined ? vaccine.nextDoseDate : vaccine.boosterDate
-);
-
 export function pickNextVaccine(vaccines: VaccineSummaryItem[], today: Date) {
     const doses = vaccines
-        .map((vaccine) => ({ ...vaccine, dueDate: dueDateOf(vaccine), at: parseAppDate(dueDateOf(vaccine)) }))
+        .map((vaccine) => {
+            const dueDate = getNextDoseDate(vaccine);
+            return { ...vaccine, dueDate, at: parseAppDate(dueDate) };
+        })
         .filter(hasDate);
 
     return closest(doses, today);

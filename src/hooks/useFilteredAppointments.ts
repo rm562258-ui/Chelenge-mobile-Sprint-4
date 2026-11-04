@@ -1,28 +1,16 @@
-import { useState } from 'react';
-import { useDebouncedValue } from './useDebouncedValue';
+import { useListFilter } from './useListFilter';
 
 type FilterableAppointment = {
-    date?: string;
-    id?: string | number;
     petName?: string;
     status?: string;
     title?: string;
     type?: string;
 };
 
-export function useFilteredAppointments(appointments: FilterableAppointment[]) {
-    const [query, setQuery] = useState('');
-    const [status, setStatus] = useState('');
-    const debouncedQuery = useDebouncedValue(query);
+const appointmentText = (item: FilterableAppointment) => `${item.title || ''} ${item.type || ''} ${item.petName || ''}`;
+// Consulta atrasada também está pendente: só a concluída sai do filtro.
+const isPending = (item: FilterableAppointment) => item.status !== 'Concluída';
 
-    const items = appointments.filter((item) => {
-        const matchesQuery = `${item.title || ''} ${item.type || ''} ${item.petName || ''}`
-            .toLowerCase()
-            .includes(debouncedQuery.toLowerCase());
-        return matchesQuery && (!status || item.status === status);
-    });
-
-    const toggleStatus = () => setStatus((currentStatus) => currentStatus ? '' : 'Agendada');
-
-    return { items, query, setQuery, status, toggleStatus };
+export function useFilteredAppointments(appointments: FilterableAppointment[] | undefined) {
+    return useListFilter(appointments, { searchText: appointmentText, matchesFilter: isPending });
 }

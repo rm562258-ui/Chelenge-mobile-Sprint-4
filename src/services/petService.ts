@@ -55,8 +55,6 @@ const offlinePets = createOfflineCrudService<PetPayload, OfflinePet>({
     logTag: '[PETS]',
 });
 
-export const syncOfflinePets = offlinePets.sync;
-
 export const petService = {
     ...crud,
     list: offlinePets.list,

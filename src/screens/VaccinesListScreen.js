@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
@@ -8,32 +8,23 @@ import { useVaccines } from '../hooks/useVaccines';
 import SearchBar from '../components/ui/SearchBar';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import { EmptyState, ErrorState } from '../components/ui/ListState';
-import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { useFilteredVaccines } from '../hooks/useFilteredVaccines';
 import { usePetOptions } from '../hooks/usePetOptions';
 import { useAppTheme } from '../context/ThemeProvider';
 import { formatDisplayDate } from '../utils/date';
+import { getNextDoseDate } from '../utils/vaccines';
 
 export default function VaccinesListScreen({ navigation }) {
     const { colors } = useAppTheme();
     const styles = useMemo(() => createStyles(colors), [colors]);
     const { data, isLoading, isError, isRefetching, refetch } = useVaccines();
     const { getPetName } = usePetOptions();
-    const [query, setQuery] = useState('');
-    const [withBooster, setWithBooster] = useState(false);
-    const debouncedQuery = useDebouncedValue(query);
-
-    const items = useMemo(() => {
-        const list = Array.isArray(data) ? data : [];
-        return list.filter((v) => {
-            const matchesQuery = (v.name || '').toLowerCase().includes(debouncedQuery.toLowerCase());
-            const nextDate = v.nextDoseDate !== undefined ? v.nextDoseDate : v.boosterDate;
-            return matchesQuery && (!withBooster || !!nextDate);
-        });
-    }, [data, debouncedQuery, withBooster]);
+    const { items, query, setQuery, filterActive, toggleFilter } = useFilteredVaccines(data);
 
     return (
         <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
             <FlatList
+                keyboardShouldPersistTaps="handled"
                 // Elemento (e não função): uma função nova a cada render remontaria a busca e fecharia o teclado.
                 ListHeaderComponent={(
                     <View style={styles.header}>
@@ -41,7 +32,7 @@ export default function VaccinesListScreen({ navigation }) {
                         <View style={styles.controls}>
                             <SearchBar value={query} onChangeText={setQuery} />
                             <View style={styles.actions}>
-                                <AppButton title={withBooster ? 'Todas' : 'Reforço'} variant="outline" onPress={() => setWithBooster((current) => !current)} />
+                                <AppButton title={filterActive ? 'Todas' : 'Reforço'} variant="outline" onPress={toggleFilter} />
                                 <AppButton title="Nova" onPress={() => navigation.navigate('VaccineForm')} />
                             </View>
                         </View>
@@ -58,7 +49,7 @@ export default function VaccinesListScreen({ navigation }) {
                             <Text style={{ color: colors.textMuted }}>Pet: {getPetName(item.petId)}</Text>
                             <Text style={{ color: colors.textMuted, marginTop: 6 }}>Data: {formatDisplayDate(item.date || '') || '-'}</Text>
                             <Text style={{ color: colors.textMuted, marginTop: 6 }}>Dose: {item.dose || '-'}</Text>
-                            <Text style={{ color: colors.textMuted, marginTop: 6 }}>Reforço: {(item.nextDoseDate !== undefined ? item.nextDoseDate : item.boosterDate) ? formatDisplayDate(item.nextDoseDate !== undefined ? item.nextDoseDate : item.boosterDate) : '-'}</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 6 }}>Reforço: {formatDisplayDate(getNextDoseDate(item) || '') || '-'}</Text>
                         </ProfileCard>
                     </TouchableOpacity>
                 )}

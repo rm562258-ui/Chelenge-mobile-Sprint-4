@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
@@ -8,32 +8,21 @@ import { useMedications } from '../hooks/useMedications';
 import SearchBar from '../components/ui/SearchBar';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import { EmptyState, ErrorState } from '../components/ui/ListState';
-import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { useFilteredMedications } from '../hooks/useFilteredMedications';
 import { usePetOptions } from '../hooks/usePetOptions';
 import { useAppTheme } from '../context/ThemeProvider';
-import { isMedicationInProgress } from '../utils/date';
 
 export default function MedicationsListScreen({ navigation }) {
     const { colors } = useAppTheme();
     const styles = useMemo(() => createStyles(colors), [colors]);
     const { data, isLoading, isError, isRefetching, refetch } = useMedications();
     const { getPetName } = usePetOptions();
-    const [query, setQuery] = useState('');
-    const [activeOnly, setActiveOnly] = useState(false);
-    const debouncedQuery = useDebouncedValue(query);
-
-    const items = useMemo(() => {
-        const list = Array.isArray(data) ? data : [];
-        return list.filter((m) => {
-            const matchesQuery = (m.name || '').toLowerCase().includes(debouncedQuery.toLowerCase());
-            const isActive = isMedicationInProgress(m.endDate);
-            return matchesQuery && (!activeOnly || isActive);
-        });
-    }, [data, debouncedQuery, activeOnly]);
+    const { items, query, setQuery, filterActive, toggleFilter } = useFilteredMedications(data);
 
     return (
         <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
             <FlatList
+                keyboardShouldPersistTaps="handled"
                 // Elemento (e não função): uma função nova a cada render remontaria a busca e fecharia o teclado.
                 ListHeaderComponent={(
                     <View style={styles.header}>
@@ -41,7 +30,7 @@ export default function MedicationsListScreen({ navigation }) {
                         <View style={styles.controls}>
                             <SearchBar value={query} onChangeText={setQuery} />
                             <View style={styles.actions}>
-                                <AppButton title={activeOnly ? 'Todos' : 'Ativos'} variant="outline" onPress={() => setActiveOnly((current) => !current)} />
+                                <AppButton title={filterActive ? 'Todos' : 'Ativos'} variant="outline" onPress={toggleFilter} />
                                 <AppButton title="Novo" onPress={() => navigation.navigate('MedicationForm')} />
                             </View>
                         </View>

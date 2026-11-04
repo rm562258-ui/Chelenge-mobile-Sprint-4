@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
-import { EmptyState, ErrorState } from '../components/ui/ListState';
-import LoadingSkeleton from '../components/ui/LoadingSkeleton';
+import DetailFallback from '../components/ui/DetailFallback';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useAppointments, useDeleteAppointment, useUpdateAppointment } from '../hooks/useAppointments';
+import { confirmDelete } from '../utils/confirmDelete';
 import { formatDisplayDate } from '../utils/date';
 import { useAppTheme } from '../context/ThemeProvider';
 import { APPOINTMENT_REMINDER_LABELS } from '../constants/appointments';
@@ -30,29 +30,25 @@ export default function AppointmentDetailsScreen({ route, navigation }) {
         }
     };
 
-    const handleDelete = () => {
-        Alert.alert('Confirmar', 'Deseja excluir esta consulta?', [
-            { text: 'Cancelar', style: 'cancel' },
-            {
-                text: 'Excluir', style: 'destructive', onPress: async () => {
-                    try {
-                        await deleteMutation.mutateAsync(id);
-                        navigation.popTo('AgendaCuidados');
-                    } catch {
-                        Alert.alert('Erro', 'Não foi possível excluir a consulta. Tente novamente.');
-                    }
-                }
-            }
-        ]);
-    };
+    const handleDelete = () => confirmDelete({
+        message: 'Deseja excluir esta consulta?',
+        errorMessage: 'Não foi possível excluir a consulta. Tente novamente.',
+        onConfirm: async () => {
+            await deleteMutation.mutateAsync(id);
+            navigation.popTo('AgendaCuidados');
+        },
+    });
 
     if (!appointment) {
         return (
-            <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
-                {isLoading ? <LoadingSkeleton rows={1} /> : isError
-                    ? <ErrorState title="Não foi possível carregar a consulta." onRetry={refetch} />
-                    : <EmptyState title="Consulta não encontrada." description="Ela pode ter sido excluída." />}
-            </SafeAreaView>
+            <DetailFallback
+                isLoading={isLoading}
+                isError={isError}
+                onRetry={refetch}
+                errorTitle="Não foi possível carregar a consulta."
+                emptyTitle="Consulta não encontrada."
+                emptyDescription="Ela pode ter sido excluída."
+            />
         );
     }
 

@@ -1,5 +1,4 @@
 {
-  "users": [],
   "pets": [
     {
       "id": "pet-001",
@@ -74,36 +73,6 @@
       "notes": "Revisão do acompanhamento veterinário.",
       "veterinarian": "Dr. Rafael Lima",
       "clinic": "Clínica Clyvo Vet"
-    },
-    {
-      "createdAt": "2026-11-03T02:14:24.314Z",
-      "petName": "teste",
-      "date": "02/11/26",
-      "time": "23:15",
-      "reminder": "at_time",
-      "type": "Consulta",
-      "status": "Atrasada",
-      "clinic": "",
-      "veterinarian": "",
-      "notes": "",
-      "updatedAt": "2026-11-03T02:14:24.314Z",
-      "userId": "Yp4DeXFtJcPXpZyynCJQf0t3Gnf2",
-      "id": "aLm7KYo0i0Y"
-    },
-    {
-      "createdAt": "2026-11-03T02:19:01.577Z",
-      "petName": "teste",
-      "date": "03/11/26",
-      "time": "00:02",
-      "reminder": "30min",
-      "type": "Consulta",
-      "status": "Agendada",
-      "clinic": "",
-      "veterinarian": "",
-      "notes": "",
-      "updatedAt": "2026-11-03T02:19:01.577Z",
-      "userId": "Yp4DeXFtJcPXpZyynCJQf0t3Gnf2",
-      "id": "zkIdOYG_spQ"
     }
   ],
   "vaccines": [
@@ -140,7 +109,32 @@
     }
   ],
   "notifications": [],
-  "aiHistory": [],
-  "alerts": [],
+  "faq": [
+    {
+      "id": "faq-001",
+      "question": "Como cadastro um pet?",
+      "answer": "Acesse Meus Pets, toque em Novo e informe os dados do seu animal para salvar o cadastro."
+    },
+    {
+      "id": "faq-002",
+      "question": "Como agendo uma consulta?",
+      "answer": "Abra a Agenda de Cuidados, toque em Novo e informe o pet, a data, o horário, o tipo da consulta e as notas. Também é possível escolher um lembrete."
+    },
+    {
+      "id": "faq-003",
+      "question": "Onde vejo as vacinas do meu pet?",
+      "answer": "A carteira vacinal fica na área Vacinas. Nela você pode consultar registros e próximos vencimentos."
+    },
+    {
+      "id": "faq-004",
+      "question": "Como acompanho os medicamentos?",
+      "answer": "Na seção Medicamentos você encontra os tratamentos cadastrados, dosagens e frequências."
+    },
+    {
+      "id": "faq-005",
+      "question": "O aplicativo substitui um veterinário?",
+      "answer": "Não. O CLYVO VET ajuda na organização dos cuidados, mas situações de saúde devem ser avaliadas por um profissional."
+    }
+  ],
   "$schema": "./node_modules/json-server/schema.json"
 }

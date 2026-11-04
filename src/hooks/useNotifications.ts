@@ -1,19 +1,25 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import notificationService, { type NotificationPayload } from '../services/notificationService';
+import notificationService from '../services/notificationService';
 import { useApiQuery } from './useApiQuery';
+
+type NotificationRecord = {
+    createdAt?: string;
+};
 
 const queryKey = ['notifications'];
 
-export function useNotifications() {
-    return useApiQuery(queryKey, () => notificationService.getAll().then((response) => response.data));
-}
+const createdTime = (record: NotificationRecord) => new Date(record.createdAt || 0).getTime();
 
-export function useCreateNotification() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (payload: NotificationPayload) => notificationService.create(payload).then((response) => response.data),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey }),
-    });
+const sortNewestFirst = (records: NotificationRecord[]) => (
+    Array.isArray(records) ? [...records].sort((first, second) => createdTime(second) - createdTime(first)) : records
+);
+
+export function useNotifications() {
+    return useApiQuery(
+        queryKey,
+        () => notificationService.getAll().then((response) => response.data),
+        { select: sortNewestFirst },
+    );
 }
 
 export function useDeleteNotification() {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Alert, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
 import HeaderSection from '../components/ui/HeaderSection';
@@ -8,12 +8,8 @@ import { EmptyState, ErrorState } from '../components/ui/ListState';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import { useDeleteNotification, useNotifications } from '../hooks/useNotifications';
 import { useAppTheme } from '../context/ThemeProvider';
-
-const formatDateTime = (value) => {
-  if (!value) return '';
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? '' : date.toLocaleString('pt-BR');
-};
+import { confirmDelete } from '../utils/confirmDelete';
+import { formatDateTime, isFutureDateTime } from '../utils/date';
 
 export default function HistoricoNotificacoesScreen() {
   const { colors } = useAppTheme();
@@ -21,36 +17,19 @@ export default function HistoricoNotificacoesScreen() {
   const { data, isLoading, isError, isRefetching, refetch } = useNotifications();
   const deleteNotification = useDeleteNotification();
 
-  const notifications = useMemo(() => {
-    const records = Array.isArray(data) ? [...data] : [];
-    return records.sort((first, second) => {
-      const firstDate = new Date(first.createdAt || 0).getTime();
-      const secondDate = new Date(second.createdAt || 0).getTime();
-      return secondDate - firstDate;
-    });
-  }, [data]);
-
-  const handleDelete = (id) => {
-    Alert.alert('Excluir notificação', 'Deseja excluir este registro do histórico?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Excluir',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteNotification.mutateAsync(String(id));
-          } catch {
-            Alert.alert('Erro', 'Não foi possível excluir o registro.');
-          }
-        },
-      },
-    ]);
-  };
+  const handleDelete = (id) => confirmDelete({
+    title: 'Excluir notificação',
+    message: 'Deseja excluir este registro do histórico?',
+    errorMessage: 'Não foi possível excluir o registro.',
+    onConfirm: async () => {
+      await deleteNotification.mutateAsync(String(id));
+    },
+  });
 
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <FlatList
-        data={notifications}
+        data={data}
         keyExtractor={(item, index) => item.id?.toString() || `${item.createdAt || 'notification'}-${index}`}
         contentContainerStyle={styles.container}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
@@ -62,8 +41,7 @@ export default function HistoricoNotificacoesScreen() {
             : null}
         ListFooterComponent={isLoading && !data ? <LoadingSkeleton rows={3} /> : null}
         renderItem={({ item }) => {
-          const scheduledAt = item.scheduledFor ? new Date(item.scheduledFor) : null;
-          const isScheduled = scheduledAt && !Number.isNaN(scheduledAt.getTime()) && scheduledAt.getTime() > Date.now();
+          const isScheduled = isFutureDateTime(item.scheduledFor);
           return (
             <ProfileCard title={item.title || 'Notificação'} icon="🔔">
               <View style={[styles.statusBadge, isScheduled ? styles.scheduledBadge : styles.sentBadge]}>

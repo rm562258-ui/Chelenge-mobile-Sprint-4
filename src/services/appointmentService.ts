@@ -48,8 +48,6 @@ const offlineAppointments = createOfflineCrudService<AppointmentPayload, Offline
     logTag: '[APPOINTMENTS]',
 });
 
-export const syncOfflineAppointments = offlineAppointments.sync;
-
 export const appointmentService = {
     ...crud,
     list: offlineAppointments.list,

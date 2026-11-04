@@ -10,12 +10,10 @@ import ProfileCard from '../components/ui/ProfileCard';
 import { useCreateMedication, useMedications, useUpdateMedication } from '../hooks/useMedications';
 import { usePetOptions } from '../hooks/usePetOptions';
 import { useAppTheme } from '../context/ThemeProvider';
-import { formatDisplayDate, maskDateInput } from '../utils/date';
+import { maskDateInput, toFormDate } from '../utils/date';
 import { medicationFormSchema } from '../utils/formSchemas';
 
 const EMPTY_MEDICATION = { name: '', petId: '', frequency: '', dosage: '', startDate: '', endDate: '', notes: '' };
-
-const toFormDate = (value) => (value ? maskDateInput(formatDisplayDate(value)) : '');
 
 const toFormValues = (medication) => ({
     name: medication.name ?? '',

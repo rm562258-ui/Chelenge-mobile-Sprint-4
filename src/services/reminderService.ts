@@ -1,5 +1,14 @@
 import { formatDisplayDate, combineDateAndTime, parseAppDate } from '../utils/date';
-import { ensurePermission, scheduleAt, sendNow, cancelByKey, cancelAll } from './localNotificationService';
+import { getNextDoseDate } from '../utils/vaccines';
+import {
+    cancelAll,
+    cancelByKey,
+    ensurePermission,
+    getScheduledKeys,
+    hasPermission,
+    scheduleAt,
+    sendNow,
+} from './localNotificationService';
 
 type AppointmentReminderValue = 'none' | 'at_time' | '30min' | '1h' | '1d';
 
@@ -74,10 +83,6 @@ const appointmentNotificationText = (appointment: ReminderAppointment) => {
     };
 };
 
-const vaccineDoseDate = (vaccine: ReminderVaccine) => (
-    vaccine.nextDoseDate !== undefined ? vaccine.nextDoseDate : vaccine.boosterDate
-);
-
 export async function confirmAppointmentCreated(
     appointment: ReminderAppointment,
     remindersEnabled: boolean,
@@ -126,7 +131,7 @@ export async function confirmVaccineCreated(
     vaccine: ReminderVaccine,
     remindersEnabled: boolean,
 ): Promise<void> {
-    const nextDoseDate = vaccineDoseDate(vaccine);
+    const nextDoseDate = getNextDoseDate(vaccine);
     if (!remindersEnabled || vaccine.id == null || !nextDoseDate) return;
 
     await sendNow({
@@ -143,7 +148,7 @@ export async function scheduleVaccineReminder(
     if (vaccine.id == null) return;
     const key = vaccineKey(vaccine.id);
     await cancelByKey(key);
-    const nextDoseDate = vaccineDoseDate(vaccine);
+    const nextDoseDate = getNextDoseDate(vaccine);
     if (!remindersEnabled || !nextDoseDate) return;
 
     const date = calculateVaccineReminderDate(nextDoseDate);
@@ -177,6 +182,39 @@ export async function rescheduleAll(
     }
     for (const vaccine of vaccines) {
         await scheduleVaccineReminder(vaccine, true);
+    }
+}
+
+/**
+ * Ao entrar no app, agenda o que falta no aparelho (ex.: depois de sair e entrar na conta) e cancela
+ * lembretes de registros que não existem mais (ex.: consulta offline que ganhou outro id ao sincronizar).
+ * Diferente de rescheduleAll, preserva o que já está agendado e as notificações já entregues.
+ */
+export async function restoreMissingReminders(
+    appointments: ReminderAppointment[],
+    vaccines: ReminderVaccine[],
+): Promise<void> {
+    // Sem permissão não há o que restaurar; o pedido aparece ao cadastrar uma consulta ou vacina.
+    if (!(await hasPermission())) return;
+
+    const scheduledKeys = new Set(await getScheduledKeys());
+    const currentKeys = new Set<string>();
+
+    // Em sequência, pelo mesmo motivo de rescheduleAll.
+    for (const appointment of appointments) {
+        if (appointment.id == null) continue;
+        const key = appointmentKey(appointment.id);
+        currentKeys.add(key);
+        if (!scheduledKeys.has(key)) await scheduleAppointmentReminders(appointment, true);
+    }
+    for (const vaccine of vaccines) {
+        if (vaccine.id == null) continue;
+        const key = vaccineKey(vaccine.id);
+        currentKeys.add(key);
+        if (!scheduledKeys.has(key)) await scheduleVaccineReminder(vaccine, true);
+    }
+    for (const key of scheduledKeys) {
+        if (!currentKeys.has(key)) await cancelByKey(key);
     }
 }
 

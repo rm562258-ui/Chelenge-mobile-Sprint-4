@@ -26,11 +26,22 @@ export function formatDisplayDate(value: string = ''): string {
     return isoDate ? `${isoDate[3]}/${isoDate[2]}/${isoDate[1].slice(-2)}` : value;
 }
 
+export function formatDateTime(value: string | null | undefined): string {
+    if (!value) return '';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '' : date.toLocaleString('pt-BR');
+}
+
 export function maskDateInput(value: string): string {
     const digits = value.replace(/\D/g, '').slice(0, 6);
     if (digits.length <= 2) return digits;
     if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
     return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
+/** Data salva no formato aceito pelos campos de data dos formulários. */
+export function toFormDate(value: string | null | undefined): string {
+    return value ? maskDateInput(formatDisplayDate(value)) : '';
 }
 
 export function maskTimeInput(value: string): string {
@@ -54,6 +65,10 @@ export function combineDateAndTime(dateValue: Date | string, time: string): Date
 
 export function isPast(date: Date): boolean {
     return date.getTime() < Date.now();
+}
+
+export function isFutureDateTime(value: string | null | undefined): boolean {
+    return !!value && new Date(value).getTime() > Date.now();
 }
 
 export function isMedicationInProgress(endDate: string | undefined, referenceDate: Date = new Date()): boolean {

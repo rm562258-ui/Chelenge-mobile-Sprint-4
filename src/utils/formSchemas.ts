@@ -16,7 +16,7 @@ export const petFormSchema = z.object({
 });
 
 export const createAppointmentFormSchema = (isEditing: boolean) => z.object({
-    petName: z.string().trim().min(1, 'Informe o nome do pet'),
+    petName: z.string().trim().min(1, 'Selecione o pet'),
     date: requiredAppDate,
     time: z.string(),
     reminder: z.enum(['none', 'at_time', '30min', '1h', '1d']),

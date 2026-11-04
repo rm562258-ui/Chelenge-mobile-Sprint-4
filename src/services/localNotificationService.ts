@@ -106,12 +106,18 @@ export function configureNotifications() {
     return configurationPromise;
 }
 
+const isPermissionAllowed = (permission: Notifications.NotificationPermissionsStatus) => permission.granted
+    || permission.ios?.status === IosAuthorizationStatus.PROVISIONAL;
+
+/** Consulta a permissão sem mostrar o pedido ao usuário. */
+export async function hasPermission(): Promise<boolean> {
+    return isPermissionAllowed(await Notifications.getPermissionsAsync());
+}
+
 export async function ensurePermission(): Promise<boolean> {
     let permission = await Notifications.getPermissionsAsync();
-    const isAllowed = () => permission.granted
-        || permission.ios?.status === IosAuthorizationStatus.PROVISIONAL;
 
-    if (isAllowed()) {
+    if (isPermissionAllowed(permission)) {
         await AsyncStorage.removeItem(PERMISSION_DENIED_KEY);
         permissionDenialToastShown = false;
         return true;
@@ -122,7 +128,7 @@ export async function ensurePermission(): Promise<boolean> {
         permission = await Notifications.requestPermissionsAsync({
             ios: { allowAlert: true, allowSound: true, allowBadge: false },
         });
-        if (isAllowed()) {
+        if (isPermissionAllowed(permission)) {
             await AsyncStorage.removeItem(PERMISSION_DENIED_KEY);
             permissionDenialToastShown = false;
             return true;
@@ -193,6 +199,10 @@ export async function scheduleAt({
     }
     await recordNotificationHistory({ title, body, data }, date);
     return notificationId;
+}
+
+export async function getScheduledKeys(): Promise<string[]> {
+    return Object.keys(await readNotificationMap());
 }
 
 export async function cancelByKey(key: string): Promise<void> {

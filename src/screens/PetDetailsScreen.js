@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
-import { EmptyState, ErrorState } from '../components/ui/ListState';
-import LoadingSkeleton from '../components/ui/LoadingSkeleton';
+import DetailFallback from '../components/ui/DetailFallback';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useDeletePet, usePet } from '../hooks/usePets';
 import { useAppTheme } from '../context/ThemeProvider';
+import { confirmDelete } from '../utils/confirmDelete';
 
 export default function PetDetailsScreen({ route, navigation }) {
     const { colors } = useAppTheme();
@@ -15,29 +15,25 @@ export default function PetDetailsScreen({ route, navigation }) {
     const { data: pet, isLoading, isError, refetch } = usePet(id);
     const deleteMutation = useDeletePet();
 
-    const handleDelete = () => {
-        Alert.alert('Confirmar', 'Deseja excluir este pet?', [
-            { text: 'Cancelar', style: 'cancel' },
-            {
-                text: 'Excluir', style: 'destructive', onPress: async () => {
-                    try {
-                        await deleteMutation.mutateAsync(id);
-                        navigation.popTo('Pets');
-                    } catch (_err) {
-                        Alert.alert('Erro', 'Não foi possível excluir o pet.');
-                    }
-                }
-            }
-        ]);
-    };
+    const handleDelete = () => confirmDelete({
+        message: 'Deseja excluir este pet?',
+        errorMessage: 'Não foi possível excluir o pet.',
+        onConfirm: async () => {
+            await deleteMutation.mutateAsync(id);
+            navigation.popTo('Pets');
+        },
+    });
 
     if (!pet) {
         return (
-            <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
-                {isLoading ? <LoadingSkeleton rows={1} /> : isError
-                    ? <ErrorState title="Não foi possível carregar o pet." onRetry={refetch} />
-                    : <EmptyState title="Pet não encontrado." description="Ele pode ter sido excluído." />}
-            </SafeAreaView>
+            <DetailFallback
+                isLoading={isLoading}
+                isError={isError}
+                onRetry={refetch}
+                errorTitle="Não foi possível carregar o pet."
+                emptyTitle="Pet não encontrado."
+                emptyDescription="Ele pode ter sido excluído."
+            />
         );
     }
 

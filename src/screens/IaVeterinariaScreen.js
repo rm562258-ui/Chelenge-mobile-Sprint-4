@@ -2,36 +2,18 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import HeaderSection from '../components/ui/HeaderSection';
+import { EmptyState, ErrorState } from '../components/ui/ListState';
+import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useAppTheme } from '../context/ThemeProvider';
-
-const FAQ_ITEMS = [
-  {
-    question: 'Como cadastro um pet?',
-    answer: 'Acesse Meus Pets, toque em Novo e informe os dados do seu animal para salvar o cadastro.',
-  },
-  {
-    question: 'Como agendo uma consulta?',
-    answer: 'Abra a Agenda de Cuidados, toque em Novo e informe o pet, a data, o horário, o tipo da consulta e as notas. Também é possível escolher um lembrete.',
-  },
-  {
-    question: 'Onde vejo as vacinas do meu pet?',
-    answer: 'A carteira vacinal fica na área Vacinas. Nela você pode consultar registros e próximos vencimentos.',
-  },
-  {
-    question: 'Como acompanho os medicamentos?',
-    answer: 'Na seção Medicamentos você encontra os tratamentos cadastrados, dosagens e frequências.',
-  },
-  {
-    question: 'O aplicativo substitui um veterinário?',
-    answer: 'Não. O CLYVO VET ajuda na organização dos cuidados, mas situações de saúde devem ser avaliadas por um profissional.',
-  },
-];
+import { useFaq } from '../hooks/useFaq';
 
 export default function IaVeterinariaScreen() {
   const { colors } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const { data, isLoading, isError, refetch } = useFaq();
   const [openQuestion, setOpenQuestion] = useState(null);
+  const items = Array.isArray(data) ? data : [];
 
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
@@ -39,12 +21,15 @@ export default function IaVeterinariaScreen() {
         <HeaderSection title="Perguntas frequentes" subtitle="Encontre respostas rápidas sobre os cuidados do seu pet" />
 
         <ProfileCard title="Dúvidas frequentes" icon="❔">
-          {FAQ_ITEMS.map((item, index) => {
-            const isOpen = openQuestion === index;
+          {isLoading ? <LoadingSkeleton rows={3} /> : null}
+          {isError && !data ? <ErrorState title="Não foi possível carregar as perguntas." onRetry={refetch} /> : null}
+          {data && items.length === 0 ? <EmptyState title="Nenhuma pergunta cadastrada." description="As dúvidas frequentes aparecerão aqui." /> : null}
+          {items.map((item) => {
+            const isOpen = openQuestion === item.id;
 
             return (
-              <View key={item.question} style={styles.faqItem}>
-                <TouchableOpacity style={styles.questionButton} onPress={() => setOpenQuestion(isOpen ? null : index)} activeOpacity={0.75}>
+              <View key={item.id} style={styles.faqItem}>
+                <TouchableOpacity style={styles.questionButton} onPress={() => setOpenQuestion(isOpen ? null : item.id)} activeOpacity={0.75}>
                   <Text style={styles.question}>{item.question}</Text>
                   <Text style={styles.toggle}>{isOpen ? '−' : '+'}</Text>
                 </TouchableOpacity>

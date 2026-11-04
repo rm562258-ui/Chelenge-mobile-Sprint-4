@@ -17,11 +17,12 @@ export default function AgendaCuidadosScreen({ navigation }) {
   const { colors } = useAppTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { data, isLoading, isError, isRefetching, refetch } = useAppointments();
-  const { items, query, setQuery, status, toggleStatus } = useFilteredAppointments(Array.isArray(data) ? data : []);
+  const { items, query, setQuery, filterActive, toggleFilter } = useFilteredAppointments(data);
 
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
       <FlatList
+        keyboardShouldPersistTaps="handled"
         data={items}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
         ListEmptyComponent={isError ? <ErrorState title="Erro ao carregar agenda." onRetry={refetch} /> : !isLoading ? <EmptyState title="Nenhuma consulta encontrada." description="Agende uma consulta ou ajuste sua busca." /> : null}
@@ -37,7 +38,7 @@ export default function AgendaCuidadosScreen({ navigation }) {
             </View>
             <View style={styles.controls}>
               <SearchBar value={query} onChangeText={setQuery} placeholder="Buscar consulta" />
-              <AppButton title={status ? 'Todas' : 'Pendentes'} variant="outline" onPress={toggleStatus} />
+              <AppButton title={filterActive ? 'Todas' : 'Pendentes'} variant="outline" onPress={toggleFilter} />
             </View>
           </View>
         )}

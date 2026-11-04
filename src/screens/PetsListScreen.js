@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
@@ -7,7 +7,7 @@ import ProfileCard from '../components/ui/ProfileCard';
 import { EmptyState, ErrorState } from '../components/ui/ListState';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import SearchBar from '../components/ui/SearchBar';
-import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { useFilteredPets } from '../hooks/useFilteredPets';
 import { usePets } from '../hooks/usePets';
 import { useAppTheme } from '../context/ThemeProvider';
 
@@ -15,20 +15,12 @@ export default function PetsListScreen({ navigation }) {
     const { colors } = useAppTheme();
     const styles = useMemo(() => createStyles(colors), [colors]);
     const { data, isLoading, isError, isRefetching, refetch } = usePets();
-    const [query, setQuery] = useState('');
-    const [sort] = useState('name');
-    const debouncedQuery = useDebouncedValue(query);
-
-    const items = useMemo(() => {
-        const list = Array.isArray(data) ? data : [];
-        const filtered = list.filter((p) => (p.petNome || p.name || '').toLowerCase().includes(debouncedQuery.toLowerCase()));
-        if (sort === 'name') return filtered.sort((a, b) => (a.petNome || '').localeCompare(b.petNome || ''));
-        return filtered;
-    }, [data, debouncedQuery, sort]);
+    const { items, query, setQuery } = useFilteredPets(data);
 
     return (
         <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
             <FlatList
+                keyboardShouldPersistTaps="handled"
                 // Elemento (e não função): uma função nova a cada render remontaria a busca e fecharia o teclado.
                 ListHeaderComponent={(
                     <View style={styles.header}>

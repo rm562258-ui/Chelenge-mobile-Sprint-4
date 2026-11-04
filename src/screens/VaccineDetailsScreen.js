@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
-import { EmptyState, ErrorState } from '../components/ui/ListState';
-import LoadingSkeleton from '../components/ui/LoadingSkeleton';
+import DetailFallback from '../components/ui/DetailFallback';
 import ProfileCard from '../components/ui/ProfileCard';
 import { usePetOptions } from '../hooks/usePetOptions';
 import { useDeleteVaccine, useVaccines } from '../hooks/useVaccines';
 import { useAppTheme } from '../context/ThemeProvider';
+import { confirmDelete } from '../utils/confirmDelete';
 import { formatDisplayDate } from '../utils/date';
+import { getNextDoseDate } from '../utils/vaccines';
 
 export default function VaccineDetailsScreen({ route, navigation }) {
     const { colors } = useAppTheme();
@@ -19,35 +20,29 @@ export default function VaccineDetailsScreen({ route, navigation }) {
     const vaccine = Array.isArray(data) ? data.find((v) => String(v.id) === String(id)) : null;
     const deleteMutation = useDeleteVaccine();
 
-    const handleDelete = () => {
-        Alert.alert('Confirmar', 'Deseja excluir este registro vacinal?', [
-            { text: 'Cancelar', style: 'cancel' },
-            {
-                text: 'Excluir',
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteMutation.mutateAsync(id);
-                        navigation.popTo('Vaccines');
-                    } catch {
-                        Alert.alert('Erro', 'Não foi possível excluir a vacina. Tente novamente.');
-                    }
-                },
-            }
-        ]);
-    };
+    const handleDelete = () => confirmDelete({
+        message: 'Deseja excluir este registro vacinal?',
+        errorMessage: 'Não foi possível excluir a vacina. Tente novamente.',
+        onConfirm: async () => {
+            await deleteMutation.mutateAsync(id);
+            navigation.popTo('Vaccines');
+        },
+    });
 
     if (!vaccine) {
         return (
-            <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>
-                {isLoading ? <LoadingSkeleton rows={1} /> : isError
-                    ? <ErrorState title="Não foi possível carregar a vacina." onRetry={refetch} />
-                    : <EmptyState title="Vacina não encontrada." description="O registro pode ter sido excluído." />}
-            </SafeAreaView>
+            <DetailFallback
+                isLoading={isLoading}
+                isError={isError}
+                onRetry={refetch}
+                errorTitle="Não foi possível carregar a vacina."
+                emptyTitle="Vacina não encontrada."
+                emptyDescription="O registro pode ter sido excluído."
+            />
         );
     }
 
-    const nextDoseDate = vaccine.nextDoseDate !== undefined ? vaccine.nextDoseDate : vaccine.boosterDate;
+    const nextDoseDate = getNextDoseDate(vaccine);
 
     return (
         <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.safeArea}>

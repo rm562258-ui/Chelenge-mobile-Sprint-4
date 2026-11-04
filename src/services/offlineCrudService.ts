@@ -166,5 +166,5 @@ export function createOfflineCrudService<TPayload, TRecord extends OfflineRecord
         return asResponse({ id });
     };
 
-    return { list, detail, create, update, remove, sync };
+    return { list, detail, create, update, remove };
 }

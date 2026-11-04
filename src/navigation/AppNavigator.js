@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useAppTheme } from '../context/ThemeProvider';
 import { useClearCacheOnLogout } from '../hooks/useClearCacheOnLogout';
 import { useNotificationListeners } from '../hooks/useNotificationListeners';
+import { useRestoreReminders } from '../hooks/useRestoreReminders';
 import { warmUpApi } from '../api/warmUp';
 import AgendaCuidadosScreen from '../screens/AgendaCuidadosScreen';
 import AlertasScreen from '../screens/AlertasScreen';
@@ -52,6 +53,7 @@ function AuthStack() {
 function AppStack() {
   useNotificationListeners();
   useClearCacheOnLogout();
+  useRestoreReminders();
   useEffect(() => {
     warmUpApi();
   }, []);

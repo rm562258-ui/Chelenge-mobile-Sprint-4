@@ -1,20 +1,10 @@
 export const API_ENDPOINTS = {
-    auth: {
-        login: '/auth/login',
-        register: '/auth/register',
-        logout: '/auth/logout',
-        me: '/auth/me',
-    },
     pets: {
         list: '/pets',
         create: '/pets',
         detail: (id: string) => `/pets/${id}`,
         update: (id: string) => `/pets/${id}`,
         delete: (id: string) => `/pets/${id}`,
-    },
-    alerts: {
-        list: '/alerts',
-        create: '/alerts',
     },
     notifications: {
         list: '/notifications',
@@ -23,14 +13,8 @@ export const API_ENDPOINTS = {
         update: (id: string) => `/notifications/${id}`,
         delete: (id: string) => `/notifications/${id}`,
     },
-    ai: {
-        history: {
-            list: '/aiHistory',
-            create: '/aiHistory',
-            detail: (id: string) => `/aiHistory/${id}`,
-            update: (id: string) => `/aiHistory/${id}`,
-            delete: (id: string) => `/aiHistory/${id}`,
-        },
+    faq: {
+        list: '/faq',
     },
     appointments: {
         list: '/appointments',

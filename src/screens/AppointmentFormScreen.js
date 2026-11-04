@@ -5,9 +5,11 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../components/ui/AppButton';
 import AppInput from '../components/ui/AppInput';
+import PetSelector from '../components/ui/PetSelector';
 import ProfileCard from '../components/ui/ProfileCard';
 import { useAppointments, useCreateAppointment, useUpdateAppointment } from '../hooks/useAppointments';
-import { formatDisplayDate, maskDateInput, maskTimeInput } from '../utils/date';
+import { usePetNameOptions } from '../hooks/usePetOptions';
+import { maskDateInput, maskTimeInput, toFormDate } from '../utils/date';
 import { useAppTheme } from '../context/ThemeProvider';
 import { APPOINTMENT_REMINDER_OPTIONS, APPOINTMENT_STATUS_OPTIONS, APPOINTMENT_TYPE_OPTIONS } from '../constants/appointments';
 import { createAppointmentFormSchema } from '../utils/formSchemas';
@@ -18,7 +20,7 @@ const isReminderOption = (value) => APPOINTMENT_REMINDER_OPTIONS.some((option) =
 
 const toFormValues = (appointment) => ({
     petName: appointment.petName ?? '',
-    date: maskDateInput(formatDisplayDate(appointment.date ?? '')),
+    date: toFormDate(appointment.date),
     time: appointment.time ?? '',
     reminder: isReminderOption(appointment.reminder) ? appointment.reminder : '1h',
     // Consultas antigas podiam ter tipo livre (ex.: "Consulta preventiva"); o formulário só oferece os dois tipos.
@@ -62,6 +64,7 @@ export default function AppointmentFormScreen({ route, navigation }) {
 
     const { data } = useAppointments();
     const appointment = id && Array.isArray(data) ? data.find((item) => String(item.id) === String(id)) : null;
+    const { options: petOptions, isLoading: isPetsLoading } = usePetNameOptions(appointment?.petName);
     const values = useMemo(() => (appointment ? toFormValues(appointment) : undefined), [appointment]);
     const schema = useMemo(() => createAppointmentFormSchema(!!id), [id]);
     // keepDirtyValues: um refetch em segundo plano não apaga o que o usuário já digitou.
@@ -95,7 +98,7 @@ export default function AppointmentFormScreen({ route, navigation }) {
             <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
                 <ProfileCard title={id ? 'Editar Consulta' : 'Nova Consulta'} icon="📅">
                     <Controller control={control} name="petName" render={({ field }) => (
-                        <AppInput label="Nome do pet" value={field.value} onChangeText={field.onChange} placeholder="Nome do pet" error={errors.petName?.message} />
+                        <PetSelector options={petOptions} value={field.value} onChange={field.onChange} loading={isPetsLoading} error={errors.petName?.message} />
                     )} />
 
                     <Controller control={control} name="date" render={({ field }) => (

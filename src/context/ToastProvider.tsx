@@ -1,15 +1,9 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
 import { useAppTheme } from './ThemeProvider';
 import { subscribeToast } from '../utils/toast';
 
 type ToastType = 'success' | 'error' | 'info';
-
-type ToastContextValue = {
-  showToast: (message: string, type?: ToastType) => void;
-};
-
-const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const { colors } = useAppTheme();
@@ -44,18 +38,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const showToast = (nextMessage: string, nextType: ToastType = 'info') => {
-    setType(nextType);
-    setMessage(nextMessage);
-  };
-
-  const value = useMemo(
-    () => ({
-      showToast,
-    }),
-    [],
-  );
-
   const toastColors = {
     success: colors.success,
     error: colors.danger,
@@ -63,7 +45,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <ToastContext.Provider value={value}>
+    <>
       {children}
       {message ? (
         <Animated.View
@@ -87,20 +69,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <Text style={styles.message}>{message}</Text>
         </Animated.View>
       ) : null}
-    </ToastContext.Provider>
+    </>
   );
 }
 
 const createStyles = (colors: import('../theme/colors').AppColors) => StyleSheet.create({
   message: { color: colors.primaryText, fontWeight: '700', textAlign: 'center' },
 });
-
-export function useToast() {
-  const context = useContext(ToastContext);
-
-  if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
-  }
-
-  return context;
-}

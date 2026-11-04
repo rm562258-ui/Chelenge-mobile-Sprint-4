@@ -10,19 +10,18 @@ import ProfileCard from '../components/ui/ProfileCard';
 import { usePetOptions } from '../hooks/usePetOptions';
 import { useCreateVaccine, useUpdateVaccine, useVaccines } from '../hooks/useVaccines';
 import { useAppTheme } from '../context/ThemeProvider';
-import { formatDisplayDate, maskDateInput } from '../utils/date';
+import { maskDateInput, toFormDate } from '../utils/date';
 import { vaccineFormSchema } from '../utils/formSchemas';
+import { getNextDoseDate } from '../utils/vaccines';
 
 const EMPTY_VACCINE = { name: '', petId: '', date: '', dose: '', nextDoseDate: '', notes: '' };
-
-const toFormDate = (value) => (value ? maskDateInput(formatDisplayDate(value)) : '');
 
 const toFormValues = (vaccine) => ({
     name: vaccine.name ?? '',
     petId: vaccine.petId != null ? String(vaccine.petId) : '',
     date: toFormDate(vaccine.date),
     dose: vaccine.dose ?? '',
-    nextDoseDate: toFormDate(vaccine.nextDoseDate || vaccine.boosterDate),
+    nextDoseDate: toFormDate(getNextDoseDate(vaccine)),
     notes: vaccine.notes ?? '',
 });
 

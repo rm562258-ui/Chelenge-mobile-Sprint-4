@@ -29,3 +29,19 @@ export function usePetOptions() {
 
     return { options, isLoading, getPetName };
 }
+
+/**
+ * Opções para a consulta, que guarda o nome do pet em vez do id. Mantém o nome já salvo
+ * mesmo fora da lista, para consultas antigas não perderem o dado ao serem editadas.
+ */
+export function usePetNameOptions(savedName?: string) {
+    const { options, isLoading } = usePetOptions();
+
+    const nameOptions = useMemo<PetOption[]>(() => {
+        const names = new Set(options.map((option) => option.name));
+        if (savedName) names.add(savedName);
+        return [...names].map((name) => ({ id: name, name }));
+    }, [options, savedName]);
+
+    return { options: nameOptions, isLoading };
+}
