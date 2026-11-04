@@ -1,0 +1,1 @@
+# Com NODE_ENV=production, o JSON Server lê esta pasta ao iniciar e encerra se ela não existir.
